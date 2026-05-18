@@ -1,0 +1,50 @@
+# render.yaml — Infraestrutura como código para o Render
+# Coloque este arquivo na RAIZ do repositório
+# Render detecta automaticamente e cria os serviços
+
+services:
+  # ── BACKEND ──────────────────────────────────────────────────────────────────
+  - type: web
+    name: thome-server
+    runtime: node
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: JWT_SECRET
+        generateValue: true          # Render gera automaticamente
+      - key: CLIENT_URL
+        fromService:
+          name: thome-client
+          type: web
+          property: host
+      - key: GOOGLE_CLIENT_ID
+        sync: false                  # Você preenche manualmente no dashboard
+
+  # ── FRONTEND ─────────────────────────────────────────────────────────────────
+  - type: web
+    name: thome-client
+    runtime: static
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: thome-server
+          type: web
+          property: host
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false                  # Você preenche manualmente no dashboard
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html     # SPA fallback para React Router
