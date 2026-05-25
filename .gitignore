@@ -1,6 +1,11 @@
 ﻿node_modules/
 dist/
 server/data/
+server/node_modules/
+client/node_modules/
 .env
 *.db
 .DS_Store
+empreendimentos.ts
+leads.ts
+schema.ts
