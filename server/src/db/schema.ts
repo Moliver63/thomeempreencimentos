@@ -1,83 +1,15 @@
-// server/src/db/schema.ts
-// Banco de dados: SQLite via Drizzle ORM
-// Tabelas: empreendimentos, leads, contatos, galeria, depoimentos
-
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
-
-// ─── EMPREENDIMENTOS ───────────────────────────────────────────────────────────
-export const empreendimentos = sqliteTable("empreendimentos", {
-  id:          integer("id").primaryKey({ autoIncrement: true }),
-  slug:        text("slug").notNull().unique(),
-  nome:        text("nome").notNull(),
-  tipo:        text("tipo", { enum: ["residencial", "comercial", "obra_publica"] }).notNull(),
-  status:      text("status", { enum: ["concluido", "em_andamento", "lancamento"] }).notNull(),
-  descricao:   text("descricao").notNull(),
-  endereco:    text("endereco").notNull(),
-  cidade:      text("cidade").notNull().default("Balneário Camboriú"),
-  estado:      text("estado").notNull().default("SC"),
-  pavimentos:  integer("pavimentos"),
-  area_total:  real("area_total"),
-  ano_entrega: integer("ano_entrega"),
-  destaque:    integer("destaque", { mode: "boolean" }).default(false),
-  created_at:  text("created_at").default(sql`(datetime('now'))`),
-  updated_at:  text("updated_at").default(sql`(datetime('now'))`),
-});
-
-// ─── GALERIA DE IMAGENS ────────────────────────────────────────────────────────
-export const galeria = sqliteTable("galeria", {
-  id:                  integer("id").primaryKey({ autoIncrement: true }),
-  empreendimento_id:   integer("empreendimento_id").references(() => empreendimentos.id, { onDelete: "cascade" }),
-  url:                 text("url").notNull(),
-  alt:                 text("alt"),
-  ordem:               integer("ordem").default(0),
-  capa:                integer("capa", { mode: "boolean" }).default(false),
-  created_at:          text("created_at").default(sql`(datetime('now'))`),
-});
-
-// ─── LEADS / FORMULÁRIO DE INTERESSE ──────────────────────────────────────────
-export const leads = sqliteTable("leads", {
-  id:                  integer("id").primaryKey({ autoIncrement: true }),
-  nome:                text("nome").notNull(),
-  email:               text("email").notNull(),
-  telefone:            text("telefone").notNull(),
-  empreendimento_id:   integer("empreendimento_id").references(() => empreendimentos.id),
-  mensagem:            text("mensagem"),
-  origem:              text("origem").default("site"), // site, instagram, indicacao
-  status:              text("status", { enum: ["novo", "contatado", "qualificado", "convertido", "perdido"] }).default("novo"),
-  created_at:          text("created_at").default(sql`(datetime('now'))`),
-});
-
-// ─── CONTATO GERAL ─────────────────────────────────────────────────────────────
-export const contatos = sqliteTable("contatos", {
-  id:         integer("id").primaryKey({ autoIncrement: true }),
-  nome:       text("nome").notNull(),
-  email:      text("email").notNull(),
-  telefone:   text("telefone"),
-  assunto:    text("assunto").notNull(),
-  mensagem:   text("mensagem").notNull(),
-  lido:       integer("lido", { mode: "boolean" }).default(false),
-  created_at: text("created_at").default(sql`(datetime('now'))`),
-});
-
-// ─── DEPOIMENTOS ──────────────────────────────────────────────────────────────
-export const depoimentos = sqliteTable("depoimentos", {
-  id:                  integer("id").primaryKey({ autoIncrement: true }),
-  nome:                text("nome").notNull(),
-  cargo:               text("cargo"),
-  empreendimento_id:   integer("empreendimento_id").references(() => empreendimentos.id),
-  texto:               text("texto").notNull(),
-  nota:                integer("nota").default(5), // 1-5
-  ativo:               integer("ativo", { mode: "boolean" }).default(true),
-  created_at:          text("created_at").default(sql`(datetime('now'))`),
-});
-
-// ─── TIPOS INFERIDOS ──────────────────────────────────────────────────────────
-export type Empreendimento   = typeof empreendimentos.$inferSelect;
-export type NovoEmpreendimento = typeof empreendimentos.$inferInsert;
-export type Galeria          = typeof galeria.$inferSelect;
-export type Lead             = typeof leads.$inferSelect;
-export type NovoLead         = typeof leads.$inferInsert;
-export type Contato          = typeof contatos.$inferSelect;
-export type NovoContato      = typeof contatos.$inferInsert;
-export type Depoimento       = typeof depoimentos.$inferSelect;
+﻿import { pgTable, serial, text, integer, real, boolean, timestamp, pgEnum } from "drizzle-orm/pg-core";
+export const roleEnum         = pgEnum("role",         ["admin", "corretor"]);
+export const categoriaEnum    = pgEnum("categoria",    ["lancamento", "pronto", "terceiros", "locacao"]);
+export const tipoImovelEnum   = pgEnum("tipo_imovel",  ["apartamento", "casa", "cobertura", "sala_comercial", "terreno", "galpao"]);
+export const statusImovelEnum = pgEnum("status_imovel",["disponivel", "reservado", "vendido", "locado"]);
+export const statusLeadEnum   = pgEnum("status_lead",  ["novo", "contatado", "qualificado", "convertido", "perdido"]);
+export const usuarios = pgTable("usuarios", { id: serial("id").primaryKey(), nome: text("nome").notNull(), email: text("email").notNull().unique(), senha_hash: text("senha_hash"), google_id: text("google_id"), avatar_url: text("avatar_url"), role: roleEnum("role").notNull().default("corretor"), ativo: boolean("ativo").default(false), creci: text("creci"), telefone: text("telefone"), created_at: timestamp("created_at").defaultNow(), updated_at: timestamp("updated_at").defaultNow() });
+export const imoveis = pgTable("imoveis", { id: serial("id").primaryKey(), slug: text("slug").notNull().unique(), titulo: text("titulo").notNull(), descricao: text("descricao").notNull(), categoria: categoriaEnum("categoria").notNull(), tipo: tipoImovelEnum("tipo").notNull(), status: statusImovelEnum("status").notNull().default("disponivel"), endereco: text("endereco").notNull(), bairro: text("bairro"), cidade: text("cidade").notNull().default("Balneario Camboriu"), estado: text("estado").notNull().default("SC"), cep: text("cep"), area_total: real("area_total"), area_privativa: real("area_privativa"), quartos: integer("quartos"), suites: integer("suites"), banheiros: integer("banheiros"), vagas: integer("vagas"), pavimentos: integer("pavimentos"), andar: integer("andar"), valor_venda: real("valor_venda"), valor_locacao: real("valor_locacao"), valor_condominio: real("valor_condominio"), valor_iptu: real("valor_iptu"), construtora_parceira: text("construtora_parceira"), contato_parceiro: text("contato_parceiro"), imagem_capa: text("imagem_capa"), corretor_id: integer("corretor_id").references(() => usuarios.id), destaque: boolean("destaque").default(false), publicado: boolean("publicado").default(false), created_at: timestamp("created_at").defaultNow(), updated_at: timestamp("updated_at").defaultNow() });
+export const galeria_imoveis = pgTable("galeria_imoveis", { id: serial("id").primaryKey(), imovel_id: integer("imovel_id").notNull().references(() => imoveis.id, { onDelete: "cascade" }), url: text("url").notNull(), alt: text("alt"), ordem: integer("ordem").default(0), capa: boolean("capa").default(false) });
+export const leads = pgTable("leads", { id: serial("id").primaryKey(), nome: text("nome").notNull(), email: text("email").notNull(), telefone: text("telefone").notNull(), imovel_id: integer("imovel_id").references(() => imoveis.id), corretor_id: integer("corretor_id").references(() => usuarios.id), mensagem: text("mensagem"), origem: text("origem").default("site"), status: statusLeadEnum("status").default("novo"), created_at: timestamp("created_at").defaultNow() });
+export const contatos = pgTable("contatos", { id: serial("id").primaryKey(), nome: text("nome").notNull(), email: text("email").notNull(), telefone: text("telefone"), assunto: text("assunto").notNull(), mensagem: text("mensagem").notNull(), lido: boolean("lido").default(false), created_at: timestamp("created_at").defaultNow() });
+export type Usuario = typeof usuarios.$inferSelect;
+export type Imovel  = typeof imoveis.$inferSelect;
+export type Lead    = typeof leads.$inferSelect;
+export type Contato = typeof contatos.$inferSelect;
