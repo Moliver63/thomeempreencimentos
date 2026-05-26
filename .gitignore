@@ -4,5 +4,3 @@ server/data/
 .env
 *.db
 .DS_Store
-empreendimentos.ts
-leads.ts
