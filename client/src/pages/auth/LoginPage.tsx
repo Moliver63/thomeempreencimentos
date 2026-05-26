@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { Eye, EyeOff, LogIn, AlertCircle } from "lucide-react";
@@ -45,18 +45,18 @@ export function LoginPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex">
       <div className="hidden lg:flex flex-col justify-between w-1/2 bg-[#050505] border-r border-[#c9a84c]/10 p-16">
-        <img src="/logo.png" alt="ThomÃ©" className="h-24 w-auto object-contain" />
+        <img src="/logo.png" alt="Thomé" className="h-24 w-auto object-contain" />
         <div>
           <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-4">Painel Interno</p>
-          <h1 className="text-white text-5xl font-thin leading-tight mb-6">Bem-vindo ao<br /><span className="text-[#c9a84c]">sistema ThomÃ©</span></h1>
+          <h1 className="text-white text-5xl font-thin leading-tight mb-6">Bem-vindo ao<br /><span className="text-[#c9a84c]">sistema Thomé</span></h1>
           <p className="text-white/40 text-sm leading-relaxed max-w-sm">Plataforma de gestÃ£o de imÃ³veis, leads e equipe de corretores.</p>
         </div>
-        <p className="text-white/20 text-xs">Â© {new Date().getFullYear()} ThomÃ© Empreendimentos</p>
+        <p className="text-white/20 text-xs">Â© {new Date().getFullYear()} Thomé Empreendimentos</p>
       </div>
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex justify-center mb-10">
-            <img src="/logo.png" alt="ThomÃ©" className="h-16 w-auto object-contain" />
+            <img src="/logo.png" alt="Thomé" className="h-16 w-auto object-contain" />
           </div>
           <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-2">Acesso ao painel</p>
           <h2 className="text-white text-3xl font-thin mb-8">Entrar</h2>

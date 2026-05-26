@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { LayoutDashboard, Building2, Users, MessageSquare, LogOut, Menu, X, ChevronRight, Bell } from "lucide-react";
@@ -20,7 +20,7 @@ export function AdminLayout() {
     <div className="min-h-screen bg-[#0a0a0a] flex">
       <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-[#050505] border-r border-[#c9a84c]/10 flex flex-col transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
         <div className="p-6 border-b border-white/5">
-          <img src="/logo.png" alt="ThomÃ©" className="h-12 w-auto object-contain" />
+          <img src="/logo.png" alt="Thomé" className="h-12 w-auto object-contain" />
           <p className="text-[#c9a84c] text-[9px] tracking-[0.3em] uppercase mt-2">Painel Admin</p>
         </div>
         <nav className="flex-1 p-4 space-y-1">

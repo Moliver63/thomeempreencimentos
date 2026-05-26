@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { AlertCircle, CheckCircle } from "lucide-react";
@@ -33,7 +33,7 @@ export function RegistroPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-8">
       <div className="w-full max-w-md">
-        <div className="flex justify-center mb-10"><img src="/logo.png" alt="ThomÃ©" className="h-16 w-auto object-contain" /></div>
+        <div className="flex justify-center mb-10"><img src="/logo.png" alt="Thomé" className="h-16 w-auto object-contain" /></div>
         <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-2">Corretor</p>
         <h2 className="text-white text-3xl font-thin mb-2">Cadastro</h2>
         <p className="text-white/40 text-sm mb-8">ApÃ³s o cadastro, aguarde a ativaÃ§Ã£o pelo administrador.</p>
