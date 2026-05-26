@@ -15,7 +15,7 @@ export function Navbar() {
   }, []);
 
   const links = [
-    { href: "/",                label: "Início" },
+    { href: "/",                label: "InÃ­cio" },
     { href: "/empreendimentos", label: "Empreendimentos" },
     { href: "/contato",         label: "Contato" },
   ];
@@ -30,16 +30,16 @@ export function Navbar() {
     >
       <nav className="max-w-7xl mx-auto px-6 flex items-center justify-between h-20">
 
-        {/* ── Logo ── */}
+        {/* â”€â”€ Logo â”€â”€ */}
         <Link to="/" className="flex items-center gap-3 group">
           <img
-            src="/logo.jpg"
-            alt="Thomé Empreendimentos"
+            src="/logo.png"
+            alt="ThomÃ© Empreendimentos"
             className="h-12 w-auto object-contain"
           />
         </Link>
 
-        {/* ── Desktop Links ── */}
+        {/* â”€â”€ Desktop Links â”€â”€ */}
         <div className="hidden md:flex items-center gap-8">
           {links.map((l) => (
             <Link
@@ -56,7 +56,7 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* ── CTA Phone ── */}
+        {/* â”€â”€ CTA Phone â”€â”€ */}
         <a
           href="tel:+554733112896"
           className="hidden md:flex items-center gap-2 border border-[#c9a84c]/50 text-[#c9a84c] px-5 py-2 text-xs tracking-widest uppercase hover:bg-[#c9a84c] hover:text-black transition-all duration-300"
@@ -65,13 +65,13 @@ export function Navbar() {
           (47) 3311-2896
         </a>
 
-        {/* ── Mobile Toggle ── */}
+        {/* â”€â”€ Mobile Toggle â”€â”€ */}
         <button onClick={() => setOpen(!open)} className="md:hidden text-white p-2">
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </nav>
 
-      {/* ── Mobile Menu ── */}
+      {/* â”€â”€ Mobile Menu â”€â”€ */}
       {open && (
         <div className="md:hidden bg-[#0a0a0a] border-t border-[#c9a84c]/20">
           {links.map((l) => (
