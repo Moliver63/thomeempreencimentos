@@ -146,11 +146,7 @@ export function HomePage() {
 
           {/* ── LOGO REAL ── */}
           <div className="flex justify-center mb-12">
-            <img
-              src="/logo.jpg"
-              alt="Thomé Empreendimentos"
-              className="h-48 w-auto object-contain"
-            />
+            <img src="/logo_full.png" className="h-48 w-auto object-contain" />
           </div>
 
           <p className="text-white/50 text-lg font-light max-w-2xl mx-auto leading-relaxed mb-12">
@@ -260,7 +256,7 @@ export function HomePage() {
             <div className="absolute inset-0 border border-[#c9a84c]/10" />
             <div className="absolute top-6 right-6 bottom-6 left-6 border border-[#c9a84c]/5" />
             <img
-              src="/logo.jpg"
+              src="/logo_symbol.png"
               alt="Thomé Empreendimentos"
               className="relative z-10 h-48 w-auto object-contain opacity-80"
             />
