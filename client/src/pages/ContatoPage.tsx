@@ -1,10 +1,10 @@
 // client/src/pages/ContatoPage.tsx
-import { useForm } from "react-hook-form";
+import { useForm }    from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import toast from "react-hot-toast";
-import { Phone, Mail, MapPin, Instagram, Facebook } from "lucide-react";
+import { z }          from "zod";
+import toast          from "react-hot-toast";
 import { contatosAPI } from "../services/api";
+import { Phone, Mail, MapPin, Instagram } from "lucide-react";
 
 const schema = z.object({
   nome:     z.string().min(2, "Nome obrigatório"),
@@ -13,14 +13,14 @@ const schema = z.object({
   assunto:  z.string().min(3, "Informe o assunto"),
   mensagem: z.string().min(10, "Mensagem muito curta"),
 });
-type ContatoForm = z.infer<typeof schema>;
+type Form = z.infer<typeof schema>;
 
 export function ContatoPage() {
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ContatoForm>({
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<Form>({
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = async (values: ContatoForm) => {
+  const onSubmit = async (values: Form) => {
     try {
       await contatosAPI.enviar(values);
       toast.success("Mensagem enviada! Responderemos em breve.");
@@ -37,59 +37,34 @@ export function ContatoPage() {
         <h1 className="text-white text-5xl font-thin tracking-wide mb-16">Contato</h1>
 
         <div className="grid md:grid-cols-2 gap-16">
-          {/* Info */}
           <div>
             <h2 className="text-white text-2xl font-light mb-8">Estamos aqui para ajudar</h2>
-            <p className="text-white/50 leading-relaxed mb-10">
+            <p className="text-white/50 leading-relaxed mb-10 text-sm">
               Nossa equipe está pronta para atendê-lo e apresentar as melhores soluções em empreendimentos imobiliários.
             </p>
-
             <div className="space-y-6">
-              <div className="flex gap-4">
-                <div className="w-10 h-10 border border-[#c9a84c]/30 flex items-center justify-center shrink-0">
-                  <Phone size={15} className="text-[#c9a84c]" />
+              {[
+                { Icon: Phone,     text: "(47) 3311-2896",                          href: "tel:+554733112896" },
+                { Icon: Mail,      text: "contato@thomeempreendimentos.com.br",      href: "mailto:contato@thomeempreendimentos.com.br" },
+                { Icon: MapPin,    text: "Rua 3122, nº 75 - SL 04, Centro, Balneário Camboriú-SC", href: undefined },
+                { Icon: Instagram, text: "@thomeempreendimentos",                   href: "https://www.instagram.com/thomeempreendimentos" },
+              ].map(({ Icon, text, href }) => (
+                <div key={text} className="flex gap-4">
+                  <div className="w-10 h-10 border border-[#c9a84c]/30 flex items-center justify-center shrink-0">
+                    <Icon size={15} className="text-[#c9a84c]" />
+                  </div>
+                  <div className="flex items-center">
+                    {href
+                      ? <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer"
+                          className="text-white hover:text-[#c9a84c] transition-colors text-sm">{text}</a>
+                      : <span className="text-white/50 text-sm">{text}</span>
+                    }
+                  </div>
                 </div>
-                <div>
-                  <p className="text-white/30 text-xs tracking-widest uppercase mb-1">Telefone</p>
-                  <a href="tel:+554733112896" className="text-white hover:text-[#c9a84c] transition-colors">
-                    (47) 3311-2896
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="w-10 h-10 border border-[#c9a84c]/30 flex items-center justify-center shrink-0">
-                  <Mail size={15} className="text-[#c9a84c]" />
-                </div>
-                <div>
-                  <p className="text-white/30 text-xs tracking-widest uppercase mb-1">E-mail</p>
-                  <span className="text-white">contato@thomeempreendimentos.com.br</span>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="w-10 h-10 border border-[#c9a84c]/30 flex items-center justify-center shrink-0">
-                  <MapPin size={15} className="text-[#c9a84c]" />
-                </div>
-                <div>
-                  <p className="text-white/30 text-xs tracking-widest uppercase mb-1">Endereço</p>
-                  <span className="text-white">Rua 3122, nº 75 - SL 04<br />Centro, Balneário Camboriú-SC</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-10 flex gap-4">
-              <a href="https://www.instagram.com/thomeempreendimentos" target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 text-white/40 hover:text-[#c9a84c] transition-colors text-xs tracking-widest uppercase">
-                <Instagram size={15} /> Instagram
-              </a>
-              <a href="#" className="flex items-center gap-2 text-white/40 hover:text-[#c9a84c] transition-colors text-xs tracking-widest uppercase">
-                <Facebook size={15} /> Facebook
-              </a>
+              ))}
             </div>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -97,10 +72,8 @@ export function ContatoPage() {
                   className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 text-sm placeholder-white/30 focus:outline-none focus:border-[#c9a84c]/60 transition-colors" />
                 {errors.nome && <p className="text-red-400 text-xs mt-1">{errors.nome.message}</p>}
               </div>
-              <div>
-                <input {...register("telefone")} placeholder="Telefone"
-                  className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 text-sm placeholder-white/30 focus:outline-none focus:border-[#c9a84c]/60 transition-colors" />
-              </div>
+              <input {...register("telefone")} placeholder="Telefone (opcional)"
+                className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 text-sm placeholder-white/30 focus:outline-none focus:border-[#c9a84c]/60 transition-colors" />
             </div>
             <div>
               <input {...register("email")} type="email" placeholder="E-mail"
