@@ -8,20 +8,20 @@ import toast from "react-hot-toast";
 import { MapPin, Calendar, Layers, ArrowRight, Star, Phone, Mail, Instagram } from "lucide-react";
 import { imoveisAPI, leadsAPI, type Imovel } from "../services/api";
 
-// â”€â”€â”€ FORM SCHEMA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ FORM SCHEMA Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const leadSchema = z.object({
-  nome:      z.string().min(2, "Nome obrigatÃ³rio"),
-  email:     z.string().email("E-mail invÃ¡lido"),
-  telefone:  z.string().min(10, "Telefone invÃ¡lido"),
+  nome:      z.string().min(2, "Nome obrigatÃƒÂ³rio"),
+  email:     z.string().email("E-mail invÃƒÂ¡lido"),
+  telefone:  z.string().min(10, "Telefone invÃƒÂ¡lido"),
   mensagem:  z.string().optional(),
 });
 type LeadForm = z.infer<typeof leadSchema>;
 
-// â”€â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ HELPERS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const tipoLabel: Record<Empreendimento["tipo"], string> = {
   residencial:  "Residencial",
   comercial:    "Comercial",
-  obra_publica: "Obra PÃºblica",
+  obra_publica: "Obra PÃƒÂºblica",
 };
 
 const statusColor: Record<Empreendimento["status"], string> = {
@@ -33,10 +33,10 @@ const statusColor: Record<Empreendimento["status"], string> = {
 const statusLabel: Record<Empreendimento["status"], string> = {
   concluido:    "Entregue",
   em_andamento: "Em Andamento",
-  lancamento:   "LanÃ§amento",
+  lancamento:   "LanÃƒÂ§amento",
 };
 
-// â”€â”€â”€ CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ CARD Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function EmpCard({ emp }: { emp: Empreendimento }) {
   return (
     <div className="group relative bg-[#111] border border-white/5 hover:border-[#c9a84c]/40 transition-all duration-500 overflow-hidden">
@@ -100,7 +100,7 @@ function EmpCard({ emp }: { emp: Empreendimento }) {
   );
 }
 
-// â”€â”€â”€ PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ PAGE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 export function HomePage() {
   const { data, isLoading } = useQuery({
     queryKey: ["empreendimentos"],
@@ -114,7 +114,7 @@ export function HomePage() {
   const onSubmit = async (values: LeadForm) => {
     try {
       await leadsAPI.criar(values as LeadPayload);
-      toast.success("Interesse registrado! Nossa equipe entrarÃ¡ em contato.");
+      toast.success("Interesse registrado! Nossa equipe entrarÃƒÂ¡ em contato.");
       reset();
     } catch {
       toast.error("Erro ao enviar. Tente novamente.");
@@ -123,7 +123,7 @@ export function HomePage() {
 
   return (
     <main className="bg-[#0a0a0a] min-h-screen">
-      {/* â”€â”€ HERO â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ HERO Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background geometry */}
         <div className="absolute inset-0">
@@ -138,7 +138,7 @@ export function HomePage() {
         <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
           {/* Eyebrow */}
           <p className="text-[#c9a84c] text-xs tracking-[0.5em] uppercase mb-8 opacity-80">
-            HÃ¡ mais de 15 anos edificando sonhos
+            HÃƒÂ¡ mais de 15 anos edificando sonhos
           </p>
 
           {/* Logo mark */}
@@ -152,14 +152,14 @@ export function HomePage() {
           </div>
 
           <h1 className="text-white text-6xl md:text-8xl font-thin tracking-[0.2em] uppercase mb-2">
-            ThomÃ©
+            ThomÃƒÂ©
           </h1>
           <p className="text-[#c9a84c]/80 text-sm tracking-[0.6em] uppercase mb-10">
             Empreendimentos
           </p>
 
           <p className="text-white/50 text-lg font-light max-w-2xl mx-auto leading-relaxed mb-12">
-            ConstruÃ­mos com qualidade, comprometimento e a garantia de que cada projeto reflete o melhor conceito em morar bem.
+            ConstruÃƒÂ­mos com qualidade, comprometimento e a garantia de que cada projeto reflete o melhor conceito em morar bem.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -184,14 +184,14 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* â”€â”€ STATS â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ STATS Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section className="border-y border-white/5 py-16">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
             { n: "15+", label: "Anos de Mercado" },
             { n: "5+",  label: "Obras Entregues" },
             { n: "2",   label: "Engenheiros Especializados" },
-            { n: "100%", label: "SatisfaÃ§Ã£o dos Clientes" },
+            { n: "100%", label: "SatisfaÃƒÂ§ÃƒÂ£o dos Clientes" },
           ].map((s) => (
             <div key={s.n} className="text-center">
               <p className="text-[#c9a84c] text-4xl font-thin tracking-wider mb-2">{s.n}</p>
@@ -201,11 +201,11 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* â”€â”€ EMPREENDIMENTOS â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ EMPREENDIMENTOS Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section className="py-24 max-w-7xl mx-auto px-6">
         <div className="flex items-end justify-between mb-16">
           <div>
-            <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-4">PortfÃ³lio</p>
+            <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-4">PortfÃƒÂ³lio</p>
             <h2 className="text-white text-4xl font-thin tracking-wide">
               Nossos Empreendimentos
             </h2>
@@ -231,20 +231,20 @@ export function HomePage() {
         )}
       </section>
 
-      {/* â”€â”€ SOBRE â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ SOBRE Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section className="py-24 bg-[#0d0d0d] border-y border-white/5">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-6">Sobre a ThomÃ©</p>
+            <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-6">Sobre a ThomÃƒÂ©</p>
             <h2 className="text-white text-4xl font-thin tracking-wide mb-6 leading-tight">
-              Viva bem,<br /><span className="text-[#c9a84c]">Viva ThomÃ©.</span>
+              Viva bem,<br /><span className="text-[#c9a84c]">Viva ThomÃƒÂ©.</span>
             </h2>
             <p className="text-white/50 leading-relaxed mb-6">
-              Desde julho de 2003, trabalhamos com a construÃ§Ã£o e incorporaÃ§Ã£o de empreendimentos imobiliÃ¡rios,
-              buscando executar projetos com padrÃ£o de qualidade e confianÃ§a, edificando sonhos e o desejo de morar bem.
+              Desde julho de 2003, trabalhamos com a construÃƒÂ§ÃƒÂ£o e incorporaÃƒÂ§ÃƒÂ£o de empreendimentos imobiliÃƒÂ¡rios,
+              buscando executar projetos com padrÃƒÂ£o de qualidade e confianÃƒÂ§a, edificando sonhos e o desejo de morar bem.
             </p>
             <p className="text-white/50 leading-relaxed mb-8">
-              Na busca total da satisfaÃ§Ã£o, contribuÃ­mos para o crescimento da comunidade, valorizando acima de tudo
+              Na busca total da satisfaÃƒÂ§ÃƒÂ£o, contribuÃƒÂ­mos para o crescimento da comunidade, valorizando acima de tudo
               nossos clientes e colaboradores.
             </p>
             <div className="flex gap-4">
@@ -273,7 +273,7 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* â”€â”€ FORMULÃRIO DE INTERESSE â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ FORMULÃƒÂRIO DE INTERESSE Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section id="contato" className="py-24 max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-16 items-start">
           <div>
@@ -282,7 +282,7 @@ export function HomePage() {
               Quero conhecer um projeto
             </h2>
             <p className="text-white/50 leading-relaxed mb-10">
-              Deixe seus dados e nossa equipe entrarÃ¡ em contato para apresentar as melhores opÃ§Ãµes de acordo com seu perfil.
+              Deixe seus dados e nossa equipe entrarÃƒÂ¡ em contato para apresentar as melhores opÃƒÂ§ÃƒÂµes de acordo com seu perfil.
             </p>
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-white/50 text-sm">
@@ -292,7 +292,7 @@ export function HomePage() {
                 <Mail size={14} className="text-[#c9a84c]" /> contato@thomeempreendimentos.com.br
               </div>
               <div className="flex items-center gap-3 text-white/50 text-sm">
-                <MapPin size={14} className="text-[#c9a84c]" /> Rua 3122, nÂº 75 - SL 04, Centro, BalneÃ¡rio CamboriÃº-SC
+                <MapPin size={14} className="text-[#c9a84c]" /> Rua 3122, nÃ‚Âº 75 - SL 04, Centro, BalneÃƒÂ¡rio CamboriÃƒÂº-SC
               </div>
             </div>
           </div>
