@@ -3,12 +3,13 @@ import { useForm }    from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z }          from "zod";
 import toast          from "react-hot-toast";
-import { contatosAPI } from "../services/api";
+import axios from "axios";
+const API = (import.meta as any).env?.VITE_API_URL || "";
 import { Phone, Mail, MapPin, Instagram } from "lucide-react";
 
 const schema = z.object({
-  nome:     z.string().min(2, "Nome obrigatório"),
-  email:    z.string().email("E-mail inválido"),
+  nome:     z.string().min(2, "Nome obrigatÃ³rio"),
+  email:    z.string().email("E-mail invÃ¡lido"),
   telefone: z.string().optional(),
   assunto:  z.string().min(3, "Informe o assunto"),
   mensagem: z.string().min(10, "Mensagem muito curta"),
@@ -22,7 +23,7 @@ export function ContatoPage() {
 
   const onSubmit = async (values: Form) => {
     try {
-      await contatosAPI.enviar(values);
+      await axios.post(`${API}/api/contatos`, values);
       toast.success("Mensagem enviada! Responderemos em breve.");
       reset();
     } catch {
@@ -40,13 +41,13 @@ export function ContatoPage() {
           <div>
             <h2 className="text-white text-2xl font-light mb-8">Estamos aqui para ajudar</h2>
             <p className="text-white/50 leading-relaxed mb-10 text-sm">
-              Nossa equipe está pronta para atendê-lo e apresentar as melhores soluções em empreendimentos imobiliários.
+              Nossa equipe estÃ¡ pronta para atendÃª-lo e apresentar as melhores soluÃ§Ãµes em empreendimentos imobiliÃ¡rios.
             </p>
             <div className="space-y-6">
               {[
                 { Icon: Phone,     text: "(47) 3311-2896",                          href: "tel:+554733112896" },
                 { Icon: Mail,      text: "contato@thomeempreendimentos.com.br",      href: "mailto:contato@thomeempreendimentos.com.br" },
-                { Icon: MapPin,    text: "Rua 3122, nº 75 - SL 04, Centro, Balneário Camboriú-SC", href: undefined },
+                { Icon: MapPin,    text: "Rua 3122, nÂº 75 - SL 04, Centro, BalneÃ¡rio CamboriÃº-SC", href: undefined },
                 { Icon: Instagram, text: "@thomeempreendimentos",                   href: "https://www.instagram.com/thomeempreendimentos" },
               ].map(({ Icon, text, href }) => (
                 <div key={text} className="flex gap-4">
