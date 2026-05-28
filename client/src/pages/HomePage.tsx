@@ -1,110 +1,83 @@
-// client/src/pages/HomePage.tsx
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
-import { MapPin, Calendar, Layers, ArrowRight, Star, Phone, Mail, Instagram } from "lucide-react";
+import { MapPin, Layers, ArrowRight, Phone, Mail, Instagram, DollarSign } from "lucide-react";
 import { imoveisAPI, leadsAPI, type Imovel } from "../services/api";
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ FORM SCHEMA ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 const leadSchema = z.object({
-  nome:      z.string().min(2, "Nome obrigatÃƒÆ’Ã‚Â³rio"),
-  email:     z.string().email("E-mail invÃƒÆ’Ã‚Â¡lido"),
-  telefone:  z.string().min(10, "Telefone invÃƒÆ’Ã‚Â¡lido"),
-  mensagem:  z.string().optional(),
+  nome:     z.string().min(2, "Nome obrigatorio"),
+  email:    z.string().email("E-mail invalido"),
+  telefone: z.string().min(10, "Telefone invalido"),
+  mensagem: z.string().optional(),
 });
 type LeadForm = z.infer<typeof leadSchema>;
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ HELPERS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
-const tipoLabel: Record<Imovel["tipo"], string> = {
-  residencial:  "Residencial",
-  comercial:    "Comercial",
-  obra_publica: "Obra PÃƒÆ’Ã‚Âºblica",
+const catLabel: Record<string, string> = {
+  lancamento: "Lancamento", pronto: "Pronto", terceiros: "Parceiro", locacao: "Locacao",
+};
+const catColor: Record<string, string> = {
+  lancamento: "text-[#c9a84c] border-[#c9a84c]/30 bg-[#c9a84c]/10",
+  pronto:     "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+  terceiros:  "text-blue-400 border-blue-500/30 bg-blue-500/10",
+  locacao:    "text-purple-400 border-purple-500/30 bg-purple-500/10",
 };
 
-const statusColor: Record<Imovel["status"], string> = {
-  concluido:    "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  em_andamento: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-  lancamento:   "bg-[#c9a84c]/20 text-[#c9a84c] border-[#c9a84c]/30",
-};
+function ImovelCard({ imovel }: { imovel: Imovel }) {
+  const valor = imovel.valor_venda
+    ? "R$ " + Number(imovel.valor_venda).toLocaleString("pt-BR")
+    : imovel.valor_locacao
+    ? "R$ " + Number(imovel.valor_locacao).toLocaleString("pt-BR") + "/mes"
+    : null;
 
-const statusLabel: Record<Imovel["status"], string> = {
-  concluido:    "Entregue",
-  em_andamento: "Em Andamento",
-  lancamento:   "LanÃƒÆ’Ã‚Â§amento",
-};
-
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ CARD ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
-function EmpCard({ emp }: { emp: Imovel }) {
   return (
-    <div className="group relative bg-[#111] border border-white/5 hover:border-[#c9a84c]/40 transition-all duration-500 overflow-hidden">
-      {/* Imagem placeholder */}
-      <div className="relative h-64 bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <svg viewBox="0 0 80 80" fill="none" className="w-24 h-24 opacity-10 group-hover:opacity-20 transition-opacity">
-            <rect x="8" y="8" width="64" height="8" fill="#c9a84c"/>
-            <rect x="32" y="16" width="16" height="56" fill="#c9a84c"/>
-            <rect x="20" y="32" width="10" height="40" fill="#c9a84c"/>
-            <rect x="50" y="24" width="10" height="48" fill="#c9a84c"/>
-          </svg>
-        </div>
-        <div className="absolute bottom-4 left-4">
-          <span className={`text-[10px] tracking-widest uppercase px-3 py-1 border rounded-full ${statusColor[emp.status]}`}>
-            {statusLabel[emp.status]}
+    <div className="group bg-[#111] border border-white/5 hover:border-[#c9a84c]/40 transition-all duration-500 overflow-hidden flex flex-col">
+      <div className="relative h-52 bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] flex items-center justify-center">
+        <img src="/logo_symbol.png" alt="" className="h-24 w-auto object-contain group-hover:opacity-20 transition-opacity duration-700" style={{ opacity: 0.08 }} />
+        <div className="absolute top-4 left-4">
+          <span className={"text-[10px] tracking-widest uppercase px-3 py-1 border rounded-full " + (catColor[imovel.categoria] || "")}>
+            {catLabel[imovel.categoria]}
           </span>
         </div>
-        {emp.destaque && (
+        {imovel.destaque && (
           <div className="absolute top-4 right-4 bg-[#c9a84c] text-black text-[9px] tracking-widest uppercase px-3 py-1 font-bold">
             Destaque
           </div>
         )}
       </div>
-
-      <div className="p-6">
-        <p className="text-[#c9a84c] text-[10px] tracking-[0.3em] uppercase mb-2">
-          {tipoLabel[emp.tipo]}
-        </p>
-        <h3 className="text-white text-lg font-light tracking-wide mb-4 leading-snug">
-          {emp.nome}
-        </h3>
-
-        <div className="space-y-2 mb-6">
+      <div className="p-6 flex flex-col flex-1">
+        <h3 className="text-white text-base font-light tracking-wide mb-3 leading-snug">{imovel.titulo}</h3>
+        <div className="space-y-1.5 mb-4 flex-1">
           <div className="flex items-center gap-2 text-white/50 text-xs">
-            <MapPin size={12} className="text-[#c9a84c]/60" />
-            {emp.cidade}, {emp.estado}
+            <MapPin size={11} className="text-[#c9a84c]/60 shrink-0" />
+            {imovel.bairro ? imovel.bairro + ", " : ""}{imovel.cidade}
           </div>
-          {emp.pavimentos && (
+          {imovel.quartos && (
             <div className="flex items-center gap-2 text-white/50 text-xs">
-              <Layers size={12} className="text-[#c9a84c]/60" />
-              {emp.pavimentos} pavimentos
-            </div>
-          )}
-          {emp.ano_entrega && (
-            <div className="flex items-center gap-2 text-white/50 text-xs">
-              <Calendar size={12} className="text-[#c9a84c]/60" />
-              Entregue em {emp.ano_entrega}
+              <Layers size={11} className="text-[#c9a84c]/60 shrink-0" />
+              {imovel.quartos} quartos{imovel.suites ? " - " + imovel.suites + " suites" : ""}{imovel.vagas ? " - " + imovel.vagas + " vagas" : ""}
             </div>
           )}
         </div>
-
-        <Link
-          to={`/empreendimentos`}
-          className="flex items-center gap-2 text-[#c9a84c] text-xs tracking-widest uppercase group-hover:gap-3 transition-all duration-300"
-        >
-          Ver detalhes <ArrowRight size={13} />
+        {valor && (
+          <div className="flex items-center gap-1.5 text-[#c9a84c] font-medium text-sm mb-4">
+            <DollarSign size={13} /> {valor}
+          </div>
+        )}
+        <Link to="/empreendimentos" className="flex items-center gap-2 text-[#c9a84c] text-xs tracking-widest uppercase group-hover:gap-3 transition-all duration-300 mt-auto">
+          Ver detalhes <ArrowRight size={12} />
         </Link>
       </div>
     </div>
   );
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ PAGE ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 export function HomePage() {
   const { data, isLoading } = useQuery({
-    queryKey: ["empreendimentos"],
-    queryFn: () => imoveisAPI.listar().then(r => r.data.data),
+    queryKey: ["imoveis-home"],
+    queryFn:  () => imoveisAPI.listar().then(r => r.data.data as Imovel[]),
   });
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<LeadForm>({
@@ -114,233 +87,163 @@ export function HomePage() {
   const onSubmit = async (values: LeadForm) => {
     try {
       await leadsAPI.criar(values);
-      toast.success("Interesse registrado! Nossa equipe entrarÃƒÆ’Ã‚Â¡ em contato.");
+      toast.success("Interesse registrado! Nossa equipe entrara em contato.");
       reset();
     } catch {
       toast.error("Erro ao enviar. Tente novamente.");
     }
   };
 
+  const destaques = (data || []).filter(i => i.destaque).slice(0, 3);
+  const cards     = destaques.length > 0 ? destaques : (data || []).slice(0, 3);
+
   return (
     <main className="bg-[#0a0a0a] min-h-screen">
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ HERO ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
+
+      {/* HERO */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background geometry */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0a0a] to-[#0a0a0a]" />
-          <div className="absolute top-0 right-0 w-1/2 h-full opacity-[0.03]"
-            style={{ background: "repeating-linear-gradient(45deg, #c9a84c 0, #c9a84c 1px, transparent 0, transparent 50%)", backgroundSize: "30px 30px" }} />
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0a0a] to-[#0a0a0a]" />
+        <div className="absolute top-0 right-0 w-1/2 h-full opacity-[0.025]"
+          style={{ background: "repeating-linear-gradient(45deg,#c9a84c 0,#c9a84c 1px,transparent 0,transparent 50%)", backgroundSize: "28px 28px" }} />
+        <div className="absolute left-1/2 top-24 bottom-24 w-px bg-gradient-to-b from-transparent via-[#c9a84c]/20 to-transparent" />
 
-        {/* Golden vertical line */}
-        <div className="absolute left-1/2 top-20 bottom-20 w-px bg-gradient-to-b from-transparent via-[#c9a84c]/30 to-transparent" />
-
-        <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
-          {/* Eyebrow */}
-          <p className="text-[#c9a84c] text-xs tracking-[0.5em] uppercase mb-8 opacity-80">
-            HÃƒÆ’Ã‚Â¡ mais de 15 anos edificando sonhos
+        <div className="relative z-10 text-center max-w-4xl mx-auto px-6 pt-24 pb-12">
+          <p className="text-[#c9a84c]/70 text-[11px] tracking-[0.5em] uppercase mb-10">
+            Ha mais de 15 anos edificando sonhos
           </p>
-
-          {/* Logo mark */}
-          <div className="flex justify-center mb-10">
-            <svg viewBox="0 0 120 120" fill="none" className="w-24 h-24">
-              <rect x="10" y="10" width="100" height="14" fill="#c9a84c"/>
-              <rect x="53" y="24" width="14" height="86" fill="#c9a84c"/>
-              <rect x="30" y="48" width="16" height="62" fill="#b8943e" opacity="0.8"/>
-              <rect x="74" y="36" width="16" height="74" fill="#b8943e" opacity="0.8"/>
-            </svg>
+          <div className="flex justify-center mb-14">
+            <img src="/logo_full.png" alt="Thome Empreendimentos" className="w-auto object-contain" style={{ height: "clamp(140px, 20vw, 220px)" }} />
           </div>
-
-          <h1 className="text-white text-6xl md:text-8xl font-thin tracking-[0.2em] uppercase mb-2">
-            ThomÃƒÆ’Ã‚Â©
-          </h1>
-          <p className="text-[#c9a84c]/80 text-sm tracking-[0.6em] uppercase mb-10">
-            Empreendimentos
+          <p className="text-white/40 text-base md:text-lg font-light max-w-xl mx-auto leading-relaxed mb-14 tracking-wide">
+            Construimos com qualidade, comprometimento e a garantia de que cada projeto reflete o melhor conceito em morar bem.
           </p>
-
-          <p className="text-white/50 text-lg font-light max-w-2xl mx-auto leading-relaxed mb-12">
-            ConstruÃƒÆ’Ã‚Â­mos com qualidade, comprometimento e a garantia de que cada projeto reflete o melhor conceito em morar bem.
-          </p>
-
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/empreendimentos"
-              className="bg-[#c9a84c] text-black text-xs tracking-[0.3em] uppercase px-10 py-4 font-semibold hover:bg-[#dbb85e] transition-colors duration-300"
-            >
+            <Link to="/empreendimentos" className="bg-[#c9a84c] text-black text-[11px] tracking-[0.35em] uppercase px-12 py-4 font-bold hover:bg-[#dbb85e] transition-colors duration-300">
               Nossos Projetos
             </Link>
-            <a
-              href="#contato"
-              className="border border-[#c9a84c]/50 text-[#c9a84c] text-xs tracking-[0.3em] uppercase px-10 py-4 hover:bg-[#c9a84c]/10 transition-colors duration-300"
-            >
+            <a href="#contato" className="border border-[#c9a84c]/40 text-[#c9a84c] text-[11px] tracking-[0.35em] uppercase px-12 py-4 hover:bg-[#c9a84c]/8 transition-colors duration-300">
               Fale Conosco
             </a>
           </div>
         </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
-          <div className="w-px h-12 bg-gradient-to-b from-[#c9a84c] to-transparent animate-pulse" />
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 opacity-30">
+          <div className="w-px h-12 bg-gradient-to-b from-[#c9a84c] to-transparent animate-pulse mx-auto" />
         </div>
       </section>
 
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ STATS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
-      <section className="border-y border-white/5 py-16">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+      {/* STATS */}
+      <section className="border-y border-white/5 py-14">
+        <div className="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
-            { n: "15+", label: "Anos de Mercado" },
-            { n: "5+",  label: "Obras Entregues" },
-            { n: "2",   label: "Engenheiros Especializados" },
-            { n: "100%", label: "SatisfaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o dos Clientes" },
-          ].map((s) => (
+            { n: "15+",  label: "Anos de Mercado"           },
+            { n: "5+",   label: "Obras Entregues"            },
+            { n: "2",    label: "Engenheiros Especializados"  },
+            { n: "100%", label: "Satisfacao dos Clientes"    },
+          ].map(s => (
             <div key={s.n} className="text-center">
-              <p className="text-[#c9a84c] text-4xl font-thin tracking-wider mb-2">{s.n}</p>
-              <p className="text-white/40 text-xs tracking-widest uppercase">{s.label}</p>
+              <p className="text-[#c9a84c] text-4xl md:text-5xl font-thin tracking-wider mb-2">{s.n}</p>
+              <p className="text-white/35 text-[10px] tracking-widest uppercase">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ EMPREENDIMENTOS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
+      {/* EMPREENDIMENTOS */}
       <section className="py-24 max-w-7xl mx-auto px-6">
-        <div className="flex items-end justify-between mb-16">
+        <div className="flex items-end justify-between mb-14">
           <div>
-            <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-4">PortfÃƒÆ’Ã‚Â³lio</p>
-            <h2 className="text-white text-4xl font-thin tracking-wide">
-              Nossos Empreendimentos
-            </h2>
+            <p className="text-[#c9a84c] text-[10px] tracking-[0.45em] uppercase mb-3">Portfolio</p>
+            <h2 className="text-white text-3xl md:text-4xl font-thin tracking-wide">Nossos Empreendimentos</h2>
           </div>
-          <Link
-            to="/empreendimentos"
-            className="hidden md:flex items-center gap-2 text-[#c9a84c]/70 text-xs tracking-widest uppercase hover:text-[#c9a84c] transition-colors"
-          >
-            Ver todos <ArrowRight size={13} />
+          <Link to="/empreendimentos" className="hidden md:flex items-center gap-2 text-[#c9a84c]/60 text-[10px] tracking-widest uppercase hover:text-[#c9a84c] transition-colors">
+            Ver todos <ArrowRight size={12} />
           </Link>
         </div>
-
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1,2,3].map(i => (
-              <div key={i} className="h-96 bg-white/5 animate-pulse" />
-            ))}
+            {[1,2,3].map(i => <div key={i} className="h-96 bg-white/5 animate-pulse rounded" />)}
           </div>
+        ) : cards.length === 0 ? (
+          <div className="text-center py-16 text-white/20 text-sm">Nenhum empreendimento publicado ainda.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(data || []).map(emp => <EmpCard key={emp.id} emp={emp} />)}
+            {cards.map(imovel => <ImovelCard key={imovel.id} imovel={imovel} />)}
           </div>
         )}
       </section>
 
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ SOBRE ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
+      {/* SOBRE */}
       <section className="py-24 bg-[#0d0d0d] border-y border-white/5">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-6">Sobre a ThomÃƒÆ’Ã‚Â©</p>
-            <h2 className="text-white text-4xl font-thin tracking-wide mb-6 leading-tight">
-              Viva bem,<br /><span className="text-[#c9a84c]">Viva ThomÃƒÆ’Ã‚Â©.</span>
+            <p className="text-[#c9a84c] text-[10px] tracking-[0.45em] uppercase mb-5">Sobre a Thome</p>
+            <h2 className="text-white text-3xl md:text-4xl font-thin tracking-wide mb-6 leading-tight">
+              Viva bem,<br /><span className="text-[#c9a84c]">Viva Thome.</span>
             </h2>
-            <p className="text-white/50 leading-relaxed mb-6">
-              Desde julho de 2003, trabalhamos com a construÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o e incorporaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de empreendimentos imobiliÃƒÆ’Ã‚Â¡rios,
-              buscando executar projetos com padrÃƒÆ’Ã‚Â£o de qualidade e confianÃƒÆ’Ã‚Â§a, edificando sonhos e o desejo de morar bem.
+            <p className="text-white/45 leading-relaxed mb-5 text-sm">
+              Desde julho de 2003, trabalhamos com a construcao e incorporacao de empreendimentos imobiliarios, executando projetos com padrao de qualidade e confianca, edificando sonhos e o desejo de morar bem.
             </p>
-            <p className="text-white/50 leading-relaxed mb-8">
-              Na busca total da satisfaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o, contribuÃƒÆ’Ã‚Â­mos para o crescimento da comunidade, valorizando acima de tudo
-              nossos clientes e colaboradores.
+            <p className="text-white/45 leading-relaxed mb-8 text-sm">
+              Na busca total da satisfacao, contribuimos para o crescimento da comunidade, valorizando acima de tudo nossos clientes e colaboradores.
             </p>
-            <div className="flex gap-4">
-              <a href="https://www.instagram.com/thomeempreendimentos" target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 text-[#c9a84c] text-xs tracking-widest uppercase hover:underline">
-                <Instagram size={14} /> @thomeempreendimentos
-              </a>
-            </div>
+            <a href="https://www.instagram.com/thomeempreendimentos" target="_blank" rel="noreferrer"
+              className="inline-flex items-center gap-2 text-[#c9a84c] text-[10px] tracking-widest uppercase hover:underline">
+              <Instagram size={13} /> @thomeempreendimentos
+            </a>
           </div>
-
-          {/* Decorative */}
-          <div className="relative flex items-center justify-center h-80">
-            <div className="absolute inset-0 border border-[#c9a84c]/10" />
-            <div className="absolute top-6 right-6 bottom-6 left-6 border border-[#c9a84c]/5" />
-            <svg viewBox="0 0 200 200" fill="none" className="w-48 h-48 opacity-20">
-              <rect x="20" y="20" width="160" height="20" fill="#c9a84c"/>
-              <rect x="85" y="40" width="30" height="140" fill="#c9a84c"/>
-              <rect x="50" y="80" width="25" height="100" fill="#c9a84c"/>
-              <rect x="125" y="60" width="25" height="120" fill="#c9a84c"/>
-            </svg>
-            <div className="absolute bottom-8 right-8 text-right">
-              <p className="text-[#c9a84c] text-5xl font-thin">2003</p>
-              <p className="text-white/30 text-xs tracking-widest uppercase">Desde</p>
+          <div className="relative flex items-center justify-center h-72 md:h-80">
+            <div className="absolute inset-0 border border-[#c9a84c]/8 rounded" />
+            <div className="absolute top-5 right-5 bottom-5 left-5 border border-[#c9a84c]/4 rounded" />
+            <img src="/logo_full.png" alt="Thome Empreendimentos" className="relative z-10 h-52 w-auto object-contain" style={{ opacity: 0.75 }} />
+            <div className="absolute bottom-6 right-8 text-right">
+              <p className="text-[#c9a84c] text-4xl font-thin">2003</p>
+              <p className="text-white/25 text-[9px] tracking-widest uppercase">Desde</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ FORMULÃƒÆ’Ã‚ÂRIO DE INTERESSE ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
-      <section id="contato" className="py-24 max-w-7xl mx-auto px-6">
+      {/* INTERESSE */}
+      <section id="contato" className="py-24 max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-16 items-start">
           <div>
-            <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-6">Interesse</p>
-            <h2 className="text-white text-4xl font-thin tracking-wide mb-6">
-              Quero conhecer um projeto
-            </h2>
-            <p className="text-white/50 leading-relaxed mb-10">
-              Deixe seus dados e nossa equipe entrarÃƒÆ’Ã‚Â¡ em contato para apresentar as melhores opÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes de acordo com seu perfil.
+            <p className="text-[#c9a84c] text-[10px] tracking-[0.45em] uppercase mb-5">Interesse</p>
+            <h2 className="text-white text-3xl md:text-4xl font-thin tracking-wide mb-5">Quero conhecer um projeto</h2>
+            <p className="text-white/40 leading-relaxed mb-10 text-sm">
+              Deixe seus dados e nossa equipe entrara em contato para apresentar as melhores opcoes de acordo com seu perfil.
             </p>
             <div className="space-y-4">
-              <div className="flex items-center gap-3 text-white/50 text-sm">
-                <Phone size={14} className="text-[#c9a84c]" /> (47) 3311-2896
-              </div>
-              <div className="flex items-center gap-3 text-white/50 text-sm">
-                <Mail size={14} className="text-[#c9a84c]" /> contato@thomeempreendimentos.com.br
-              </div>
-              <div className="flex items-center gap-3 text-white/50 text-sm">
-                <MapPin size={14} className="text-[#c9a84c]" /> Rua 3122, nÃƒâ€šÃ‚Âº 75 - SL 04, Centro, BalneÃƒÆ’Ã‚Â¡rio CamboriÃƒÆ’Ã‚Âº-SC
-              </div>
+              <div className="flex items-start gap-3 text-white/40 text-sm"><Phone size={14} className="text-[#c9a84c] mt-0.5 shrink-0" /> (47) 3311-2896</div>
+              <div className="flex items-start gap-3 text-white/40 text-sm"><Mail size={14} className="text-[#c9a84c] mt-0.5 shrink-0" /> contato@thomeempreendimentos.com.br</div>
+              <div className="flex items-start gap-3 text-white/40 text-sm"><MapPin size={14} className="text-[#c9a84c] mt-0.5 shrink-0" /> Rua 3122, no 75 - SL 04, Centro, Balneario Camboriu-SC</div>
             </div>
           </div>
-
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <input
-                {...register("nome")}
-                placeholder="Seu nome completo"
-                className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 text-sm placeholder-white/30 focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
-              />
+              <input {...register("nome")} placeholder="Seu nome completo"
+                className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 text-sm placeholder-white/25 focus:outline-none focus:border-[#c9a84c]/50 transition-colors" />
               {errors.nome && <p className="text-red-400 text-xs mt-1">{errors.nome.message}</p>}
             </div>
             <div>
-              <input
-                {...register("email")}
-                type="email"
-                placeholder="Seu e-mail"
-                className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 text-sm placeholder-white/30 focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
-              />
+              <input {...register("email")} type="email" placeholder="Seu e-mail"
+                className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 text-sm placeholder-white/25 focus:outline-none focus:border-[#c9a84c]/50 transition-colors" />
               {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
             </div>
             <div>
-              <input
-                {...register("telefone")}
-                placeholder="WhatsApp / Telefone"
-                className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 text-sm placeholder-white/30 focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
-              />
+              <input {...register("telefone")} placeholder="WhatsApp / Telefone"
+                className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 text-sm placeholder-white/25 focus:outline-none focus:border-[#c9a84c]/50 transition-colors" />
               {errors.telefone && <p className="text-red-400 text-xs mt-1">{errors.telefone.message}</p>}
             </div>
-            <div>
-              <textarea
-                {...register("mensagem")}
-                rows={4}
-                placeholder="Qual Imovel te interessa? (opcional)"
-                className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 text-sm placeholder-white/30 focus:outline-none focus:border-[#c9a84c]/60 transition-colors resize-none"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-[#c9a84c] text-black font-semibold text-xs tracking-[0.3em] uppercase py-5 hover:bg-[#dbb85e] transition-colors duration-300 disabled:opacity-50"
-            >
+            <textarea {...register("mensagem")} rows={4} placeholder="Qual empreendimento te interessa? (opcional)"
+              className="w-full bg-white/5 border border-white/10 text-white px-5 py-4 text-sm placeholder-white/25 focus:outline-none focus:border-[#c9a84c]/50 transition-colors resize-none" />
+            <button type="submit" disabled={isSubmitting}
+              className="w-full bg-[#c9a84c] text-black font-bold text-[11px] tracking-[0.35em] uppercase py-5 hover:bg-[#dbb85e] transition-colors duration-300 disabled:opacity-50">
               {isSubmitting ? "Enviando..." : "Registrar Interesse"}
             </button>
           </form>
         </div>
       </section>
+
     </main>
   );
 }
