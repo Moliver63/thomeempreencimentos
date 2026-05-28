@@ -15,7 +15,7 @@ export function Navbar() {
   }, []);
 
   const links = [
-    { href: "/",                label: "Início" },
+    { href: "/",                label: "InÃ­cio" },
     { href: "/empreendimentos", label: "Empreendimentos" },
     { href: "/contato",         label: "Contato" },
   ];
@@ -29,8 +29,8 @@ export function Navbar() {
         <Link to="/" className="flex items-center group">
           <img
             src="/logo_full.png"
-            alt="Thomé Empreendimentos"
-            className="h-12 w-auto object-contain"
+            alt="ThomÃ© Empreendimentos"
+            className="h-24 w-auto object-contain"
           />
         </Link>
 
