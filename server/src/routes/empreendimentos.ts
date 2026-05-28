@@ -3,6 +3,7 @@ import { Router, Request, Response } from "express";
 import { db } from "../db/client";
 import { imoveis } from "../db/schema";
 import { eq, desc, and } from "drizzle-orm";
+import { requireAdmin, requireAuth } from "../middleware/auth";
 
 export const empreendimentosRouter = Router();
 
@@ -28,7 +29,7 @@ empreendimentosRouter.get("/destaques", async (_req: Request, res: Response) => 
   }
 });
 
-empreendimentosRouter.get("/admin/todos", async (_req: Request, res: Response) => {
+empreendimentosRouter.get("/admin/todos", requireAdmin, async (_req: Request, res: Response) => {
   try {
     const lista = await db.select().from(imoveis).orderBy(desc(imoveis.created_at));
     res.json({ success: true, data: lista });
@@ -37,7 +38,7 @@ empreendimentosRouter.get("/admin/todos", async (_req: Request, res: Response) =
   }
 });
 
-empreendimentosRouter.get("/corretor/portfolio", async (_req: Request, res: Response) => {
+empreendimentosRouter.get("/corretor/portfolio", requireAuth, async (_req: Request, res: Response) => {
   try {
     const lista = await db.select().from(imoveis)
       .where(eq(imoveis.publicado, true))
@@ -65,7 +66,7 @@ function toSlug(titulo: string): string {
     .replace(/^-|-$/g, "") + "-" + Date.now();
 }
 
-empreendimentosRouter.post("/", async (req: Request, res: Response) => {
+empreendimentosRouter.post("/", requireAdmin, async (req: Request, res: Response) => {
   try {
     const b = req.body;
     if (!b.titulo || !b.descricao || !b.categoria || !b.tipo || !b.endereco) {
@@ -100,7 +101,7 @@ empreendimentosRouter.post("/", async (req: Request, res: Response) => {
   }
 });
 
-empreendimentosRouter.put("/:id", async (req: Request, res: Response) => {
+empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
     const b  = req.body;
@@ -134,7 +135,7 @@ empreendimentosRouter.put("/:id", async (req: Request, res: Response) => {
   }
 });
 
-empreendimentosRouter.delete("/:id", async (req: Request, res: Response) => {
+empreendimentosRouter.delete("/:id", requireAdmin, async (req: Request, res: Response) => {
   try {
     await db.delete(imoveis).where(eq(imoveis.id, parseInt(req.params.id)));
     res.json({ success: true });
@@ -143,7 +144,7 @@ empreendimentosRouter.delete("/:id", async (req: Request, res: Response) => {
   }
 });
 
-empreendimentosRouter.patch("/:id/toggle", async (req: Request, res: Response) => {
+empreendimentosRouter.patch("/:id/toggle", requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
     const campo = req.body.campo as "publicado" | "destaque";

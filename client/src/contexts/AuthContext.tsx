@@ -1,5 +1,5 @@
 ﻿import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import axios from "axios";
+import { authAPI, api } from "../services/api";
 
 export interface AuthUser {
   id:         number;
@@ -30,10 +30,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const t = localStorage.getItem("thome_token");
     if (t) {
       setToken(t);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${t}`;
-      axios.get("/api/auth/me")
+      api.defaults.headers.common["Authorization"] = `Bearer ${t}`;
+      authAPI.me()
         .then(r => setUser(r.data.user))
-        .catch(() => localStorage.removeItem("thome_token"))
+        .catch(() => {
+          localStorage.removeItem("thome_token");
+          delete api.defaults.headers.common["Authorization"];
+          setToken(null);
+          setUser(null);
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
@@ -42,19 +47,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const saveSession = (tk: string, u: AuthUser) => {
     localStorage.setItem("thome_token", tk);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${tk}`;
+    api.defaults.headers.common["Authorization"] = `Bearer ${tk}`;
     setToken(tk);
     setUser(u);
   };
 
   const login = async (email: string, senha: string) => {
-    const { data } = await axios.post("/api/auth/login", { email, senha });
+    const { data } = await authAPI.login(email, senha);
     if (!data.success) throw new Error(data.error);
     saveSession(data.token, data.user);
   };
 
   const loginGoogle = async (credential: string) => {
-    const { data } = await axios.post("/api/auth/google", { credential });
+    const { data } = await authAPI.google(credential);
     if (data.pendente) return { pendente: true };
     if (!data.success) throw new Error(data.error);
     saveSession(data.token, data.user);
@@ -63,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem("thome_token");
-    delete axios.defaults.headers.common["Authorization"];
+    delete api.defaults.headers.common["Authorization"];
     setToken(null);
     setUser(null);
   };

@@ -3,6 +3,7 @@ import { Router, Request, Response } from "express";
 import { db } from "../db/client";
 import { leads, contatos, usuarios } from "../db/schema";
 import { eq, desc } from "drizzle-orm";
+import { requireAdmin, requireAuth } from "../middleware/auth";
 
 export const leadsRouter   = Router();
 export const contatosRouter = Router();
@@ -34,7 +35,7 @@ leadsRouter.post("/", async (req: Request, res: Response) => {
 });
 
 // GET /api/leads — admin
-leadsRouter.get("/", async (_req: Request, res: Response) => {
+leadsRouter.get("/", requireAdmin, async (_req: Request, res: Response) => {
   try {
     const lista = await db.select().from(leads).orderBy(desc(leads.created_at));
     res.json({ success: true, data: lista });
@@ -44,7 +45,7 @@ leadsRouter.get("/", async (_req: Request, res: Response) => {
 });
 
 // GET /api/leads/meus — corretor
-leadsRouter.get("/meus", async (req: Request, res: Response) => {
+leadsRouter.get("/meus", requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id;
     if (!userId) return res.status(401).json({ success: false, error: "Não autenticado" });
@@ -58,7 +59,7 @@ leadsRouter.get("/meus", async (req: Request, res: Response) => {
 });
 
 // PATCH /api/leads/:id/status
-leadsRouter.patch("/:id/status", async (req: Request, res: Response) => {
+leadsRouter.patch("/:id/status", requireAdmin, async (req: Request, res: Response) => {
   try {
     const id     = parseInt(req.params.id);
     const status = req.body.status;
@@ -102,7 +103,7 @@ contatosRouter.post("/", async (req: Request, res: Response) => {
 });
 
 // GET /api/contatos — admin
-contatosRouter.get("/", async (_req: Request, res: Response) => {
+contatosRouter.get("/", requireAdmin, async (_req: Request, res: Response) => {
   try {
     const lista = await db.select().from(contatos).orderBy(desc(contatos.created_at));
     res.json({ success: true, data: lista });

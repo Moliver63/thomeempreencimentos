@@ -3,8 +3,7 @@ import { useForm }    from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z }          from "zod";
 import toast          from "react-hot-toast";
-import axios from "axios";
-const API = (import.meta as any).env?.VITE_API_URL || "";
+import { contatosAPI } from "../services/api";
 import { Phone, Mail, MapPin, Instagram } from "lucide-react";
 
 const schema = z.object({
@@ -23,7 +22,7 @@ export function ContatoPage() {
 
   const onSubmit = async (values: Form) => {
     try {
-      await axios.post(`${API}/api/contatos`, values);
+      await contatosAPI.enviar(values);
       toast.success("Mensagem enviada! Responderemos em breve.");
       reset();
     } catch {
