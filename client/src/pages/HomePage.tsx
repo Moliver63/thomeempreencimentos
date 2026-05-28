@@ -35,7 +35,7 @@ function ImovelCard({ imovel }: { imovel: Imovel }) {
   return (
     <div className="group bg-[#111] border border-white/5 hover:border-[#c9a84c]/40 transition-all duration-500 overflow-hidden flex flex-col">
       <div className="relative h-52 bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] flex items-center justify-center">
-        <img src="/logo_symbol.png" alt="" className="h-24 w-auto object-contain group-hover:opacity-20 transition-opacity duration-700" style={{ opacity: 0.08 }} />
+        <img src="/logo_symbol.png" alt="" className="h-24 w-auto object-contain group-hover:opacity-20 transition-opacity duration-700" style={{ opacity: 0.75 }} />
         <div className="absolute top-4 left-4">
           <span className={"text-[10px] tracking-widest uppercase px-3 py-1 border rounded-full " + (catColor[imovel.categoria] || "")}>
             {catLabel[imovel.categoria]}
