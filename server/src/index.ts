@@ -38,6 +38,7 @@ app.get("/api/health", (_req: Request, res: Response) => {
 const { authRouter }             = require("./routes/auth");
 const { empreendimentosRouter }  = require("./routes/empreendimentos");
 const { leadsRouter, contatosRouter } = require("./routes/leads");
+const { uploadRouter } = require("./routes/upload");
 const { usuariosRouter }         = require("./routes/usuarios");
 
 app.use("/api/auth",             formLimiter, authRouter);
@@ -45,6 +46,7 @@ app.use("/api/empreendimentos",  empreendimentosRouter);
 app.use("/api/imoveis",          empreendimentosRouter);
 app.use("/api/leads",            formLimiter, leadsRouter);
 app.use("/api/contatos",         formLimiter, contatosRouter);
+app.use("/api/upload", uploadRouter);
 app.use("/api/usuarios",         usuariosRouter);
 
 app.use((_req: Request, res: Response) => {
