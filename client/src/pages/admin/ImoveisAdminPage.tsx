@@ -33,7 +33,7 @@ const EMPTY = {
   destaque: false, publicado: false,
 };
 
-// ─── IMAGE UPLOAD HELPER ──────────────────────────────────────────────────────
+// â”€â”€â”€ IMAGE UPLOAD HELPER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Converte arquivo para base64 (para preview) ou usa URL externa
 function ImageInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   const [mode, setMode] = useState<"url"|"preview">(value ? "url" : "url");
@@ -104,12 +104,12 @@ function ImageInput({ label, value, onChange }: { label: string; value: string; 
           className="hidden"
         />
       </div>
-      <p className="text-white/25 text-[10px] mt-1">Cole uma URL ou faça upload de um arquivo local</p>
+      <p className="text-white/25 text-[10px] mt-1">Cole uma URL ou faÃ§a upload de um arquivo local</p>
     </div>
   );
 }
 
-// ─── GALERIA MULTIPLA ─────────────────────────────────────────────────────────
+// â”€â”€â”€ GALERIA MULTIPLA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function GaleriaInput({ fotos, onChange }: { fotos: string[]; onChange: (v: string[]) => void }) {
   const [novaUrl, setNovaUrl] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -180,7 +180,7 @@ function GaleriaInput({ fotos, onChange }: { fotos: string[]; onChange: (v: stri
   );
 }
 
-// ─── MODAL PRINCIPAL ──────────────────────────────────────────────────────────
+// â”€â”€â”€ MODAL PRINCIPAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void }) {
   const qc     = useQueryClient();
   const isEdit = !!imovel;
@@ -400,7 +400,7 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
                   <div className="space-y-1.5 text-sm">
                     <div className="flex justify-between">
                       <span className="text-white/40">Titulo</span>
-                      <span className="text-white truncate max-w-48">{form.titulo || "—"}</span>
+                      <span className="text-white truncate max-w-48">{form.titulo || "â€”"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-white/40">Categoria</span>
@@ -408,7 +408,7 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
                     </div>
                     <div className="flex justify-between">
                       <span className="text-white/40">Cidade</span>
-                      <span className="text-white">{form.cidade || "—"}</span>
+                      <span className="text-white">{form.cidade || "â€”"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-white/40">Imagem capa</span>
@@ -465,7 +465,7 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
   );
 }
 
-// ─── PÁGINA PRINCIPAL ─────────────────────────────────────────────────────────
+// â”€â”€â”€ PÃGINA PRINCIPAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function ImoveisAdminPage() {
   const qc = useQueryClient();
   const [modal,    setModal]    = useState<"new"|"edit"|null>(null);
@@ -547,7 +547,7 @@ export function ImoveisAdminPage() {
                   ? "R$ " + Number(im.valor_venda).toLocaleString("pt-BR")
                   : im.valor_locacao
                   ? "R$ " + Number(im.valor_locacao).toLocaleString("pt-BR") + "/mes"
-                  : "—";
+                  : "â€”";
                 return (
                   <tr key={im.id} className="hover:bg-white/2 transition-colors">
                     <td className="px-4 py-3">
