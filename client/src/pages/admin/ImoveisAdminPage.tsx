@@ -120,13 +120,24 @@ function GaleriaInput({ fotos, onChange }: { fotos: string[]; onChange: (v: stri
     setNovaUrl("");
   };
 
-  const addFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const addFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = () => onChange([...fotos, reader.result as string]);
-      reader.readAsDataURL(file);
-    });
+    if (files.length === 0) return;
+
+    const novasFotos = await Promise.all(
+      files.map(
+        (file) =>
+          new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(new Error("Falha ao ler arquivo"));
+            reader.readAsDataURL(file);
+          })
+      )
+    );
+
+    onChange([...fotos, ...novasFotos]);
+    e.target.value = "";
   };
 
   const remove = (i: number) => onChange(fotos.filter((_, idx) => idx !== i));
