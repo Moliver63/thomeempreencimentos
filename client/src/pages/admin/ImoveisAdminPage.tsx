@@ -182,11 +182,11 @@ function GaleriaInput({ fotos, onChange }: { fotos: string[]; onChange: (v: stri
         </button>
         <button type="button" onClick={() => fileRef.current?.click()}
           className="flex items-center gap-1.5 px-3 py-2.5 bg-white/5 border border-white/10 text-white/60 hover:text-[#c9a84c] hover:border-[#c9a84c]/40 text-xs rounded transition-colors">
-          <Upload size={13} /> Upload
+          <Upload size={13} /> Multi fotos
         </button>
         <input ref={fileRef} type="file" accept="image/*" multiple onChange={addFile} className="hidden" />
       </div>
-      <p className="text-white/25 text-[10px] mt-1">A primeira foto sera a capa do imovel. Arraste para reordenar.</p>
+      <p className="text-white/25 text-[10px] mt-1">Você pode selecionar várias fotos de uma vez. A primeira foto da galeria vira a capa automática do imóvel quando não houver capa principal definida.</p>
     </div>
   );
 }
@@ -213,7 +213,9 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
     contato_parceiro:     imovel.contato_parceiro     ?? "",
   } : { ...EMPTY });
 
-  const [fotos, setFotos] = useState<string[]>([]);
+  const [fotos, setFotos] = useState<string[]>(
+    isEdit ? (imovel.galeria?.map((foto: any) => foto.url).filter(Boolean) ?? []) : []
+  );
   const [aba,   setAba]   = useState<"info"|"midia"|"valores"|"publicacao">("info");
 
   const mut = useMutation({
@@ -234,6 +236,7 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
     mut.mutate({
       ...form,
       imagem_capa:     imagemCapa,
+      galeria:         fotos,
       area_total:      n(form.area_total),
       area_privativa:  n(form.area_privativa),
       quartos:         n(form.quartos),

@@ -1,10 +1,68 @@
 import { Router, Request, Response } from "express";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../db/client";
-import { imoveis } from "../db/schema";
+import { galeria_imoveis, imoveis } from "../db/schema";
 import { requireAdmin, requireAuth } from "../middleware/auth";
 
 export const empreendimentosRouter = Router();
+
+type ImovelRow = typeof imoveis.$inferSelect;
+type GaleriaRow = typeof galeria_imoveis.$inferSelect;
+
+async function attachGallery(items: ImovelRow[]) {
+  const enriched = await Promise.all(
+    items.map(async (item) => {
+      const galeria = await db
+        .select()
+        .from(galeria_imoveis)
+        .where(eq(galeria_imoveis.imovel_id, item.id))
+        .orderBy(galeria_imoveis.ordem, galeria_imoveis.id);
+
+      return {
+        ...item,
+        galeria,
+      };
+    })
+  );
+
+  return enriched;
+}
+
+async function attachGalleryToOne(item: ImovelRow | undefined) {
+  if (!item) return undefined;
+  const [enriched] = await attachGallery([item]);
+  return enriched;
+}
+
+function normalizeGalleryInput(input: unknown): string[] {
+  if (!Array.isArray(input)) return [];
+
+  return input
+    .map((entry) => {
+      if (typeof entry === "string") return entry.trim();
+      if (entry && typeof entry === "object" && "url" in entry && typeof (entry as any).url === "string") {
+        return (entry as any).url.trim();
+      }
+      return "";
+    })
+    .filter(Boolean);
+}
+
+async function persistGallery(imovelId: number, titulo: string, fotos: string[]) {
+  await db.delete(galeria_imoveis).where(eq(galeria_imoveis.imovel_id, imovelId));
+
+  if (fotos.length === 0) return;
+
+  await db.insert(galeria_imoveis).values(
+    fotos.map((url, index) => ({
+      imovel_id: imovelId,
+      url,
+      alt: `${titulo} - Foto ${index + 1}`,
+      ordem: index,
+      capa: index === 0,
+    }))
+  );
+}
 
 empreendimentosRouter.get("/", async (_req: Request, res: Response) => {
   try {
@@ -14,7 +72,8 @@ empreendimentosRouter.get("/", async (_req: Request, res: Response) => {
       .where(eq(imoveis.publicado, true))
       .orderBy(desc(imoveis.destaque), desc(imoveis.created_at));
 
-    res.json({ success: true, data: lista });
+    const data = await attachGallery(lista);
+    res.json({ success: true, data });
   } catch {
     res.status(500).json({ success: false, error: "Erro ao buscar imóveis" });
   }
@@ -28,7 +87,8 @@ empreendimentosRouter.get("/destaques", async (_req: Request, res: Response) => 
       .where(and(eq(imoveis.publicado, true), eq(imoveis.destaque, true)))
       .orderBy(desc(imoveis.created_at));
 
-    res.json({ success: true, data: lista });
+    const data = await attachGallery(lista);
+    res.json({ success: true, data });
   } catch {
     res.status(500).json({ success: false, error: "Erro ao buscar destaques" });
   }
@@ -37,7 +97,8 @@ empreendimentosRouter.get("/destaques", async (_req: Request, res: Response) => 
 empreendimentosRouter.get("/admin/todos", requireAdmin, async (_req: Request, res: Response) => {
   try {
     const lista = await db.select().from(imoveis).orderBy(desc(imoveis.created_at));
-    res.json({ success: true, data: lista });
+    const data = await attachGallery(lista);
+    res.json({ success: true, data });
   } catch {
     res.status(500).json({ success: false, error: "Erro ao buscar imóveis" });
   }
@@ -51,7 +112,8 @@ empreendimentosRouter.get("/corretor/portfolio", requireAuth, async (_req: Reque
       .where(eq(imoveis.publicado, true))
       .orderBy(desc(imoveis.destaque), desc(imoveis.created_at));
 
-    res.json({ success: true, data: lista });
+    const data = await attachGallery(lista);
+    res.json({ success: true, data });
   } catch {
     res.status(500).json({ success: false, error: "Erro ao buscar portfólio" });
   }
@@ -68,7 +130,8 @@ empreendimentosRouter.get("/:slug", async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: "Não encontrado" });
     }
 
-    res.json({ success: true, data: item });
+    const data = await attachGalleryToOne(item);
+    res.json({ success: true, data });
   } catch {
     res.status(500).json({ success: false, error: "Erro interno" });
   }
@@ -94,6 +157,9 @@ empreendimentosRouter.post("/", requireAdmin, async (req: Request, res: Response
     if (!b.titulo || !b.descricao || !b.categoria || !b.tipo || !b.endereco) {
       return res.status(400).json({ success: false, error: "Campos obrigatórios faltando" });
     }
+
+    const fotos = normalizeGalleryInput(b.galeria);
+    const imagemCapa = b.imagem_capa || fotos[0] || null;
 
     const [novo] = await db
       .insert(imoveis)
@@ -122,14 +188,17 @@ empreendimentosRouter.post("/", requireAdmin, async (req: Request, res: Response
         valor_iptu: b.valor_iptu ? Number(b.valor_iptu) : null,
         construtora_parceira: b.construtora_parceira || null,
         contato_parceiro: b.contato_parceiro || null,
-        imagem_capa: b.imagem_capa || null,
+        imagem_capa: imagemCapa,
         destaque: b.destaque ?? false,
         publicado: b.publicado ?? false,
         corretor_id: b.corretor_id ? Number(b.corretor_id) : null,
       })
       .returning();
 
-    res.status(201).json({ success: true, data: novo });
+    await persistGallery(novo.id, novo.titulo, fotos);
+
+    const data = await attachGalleryToOne(novo);
+    res.status(201).json({ success: true, data });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: "Erro ao criar imóvel" });
@@ -141,6 +210,9 @@ empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Respon
     const id = parseInt(req.params.id);
     const b = req.body;
     const u: any = { updated_at: new Date() };
+
+    const fotos = b.galeria !== undefined ? normalizeGalleryInput(b.galeria) : undefined;
+    const imagemCapa = b.imagem_capa !== undefined ? b.imagem_capa || fotos?.[0] || null : undefined;
 
     if (b.titulo) u.titulo = String(b.titulo);
     if (b.descricao) u.descricao = String(b.descricao);
@@ -165,13 +237,19 @@ empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Respon
     if (b.area_total !== undefined) u.area_total = b.area_total ? Number(b.area_total) : null;
     if (b.construtora_parceira !== undefined) u.construtora_parceira = b.construtora_parceira || null;
     if (b.contato_parceiro !== undefined) u.contato_parceiro = b.contato_parceiro || null;
-    if (b.imagem_capa !== undefined) u.imagem_capa = b.imagem_capa || null;
+    if (imagemCapa !== undefined) u.imagem_capa = imagemCapa;
     if (b.corretor_id !== undefined) u.corretor_id = b.corretor_id ? Number(b.corretor_id) : null;
     if (b.destaque !== undefined) u.destaque = Boolean(b.destaque);
     if (b.publicado !== undefined) u.publicado = Boolean(b.publicado);
 
     const [atualizado] = await db.update(imoveis).set(u).where(eq(imoveis.id, id)).returning();
-    res.json({ success: true, data: atualizado });
+
+    if (fotos !== undefined) {
+      await persistGallery(id, atualizado.titulo, fotos);
+    }
+
+    const data = await attachGalleryToOne(atualizado);
+    res.json({ success: true, data });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: "Erro ao atualizar" });
@@ -207,7 +285,8 @@ empreendimentosRouter.patch("/:id/toggle", requireAdmin, async (req: Request, re
       .where(eq(imoveis.id, id))
       .returning();
 
-    res.json({ success: true, data: atualizado });
+    const data = await attachGalleryToOne(atualizado);
+    res.json({ success: true, data });
   } catch {
     res.status(500).json({ success: false, error: "Erro ao atualizar" });
   }

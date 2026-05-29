@@ -13,6 +13,15 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+export interface GaleriaImagem {
+  id?: number;
+  imovel_id?: number;
+  url: string;
+  alt?: string | null;
+  ordem?: number | null;
+  capa?: boolean | null;
+}
+
 export interface Imovel {
   id: number;
   slug: string;
@@ -41,6 +50,7 @@ export interface Imovel {
   construtora_parceira: string | null;
   contato_parceiro: string | null;
   imagem_capa: string | null;
+  galeria?: GaleriaImagem[];
   corretor_id: number | null;
   destaque: boolean;
   publicado: boolean;
