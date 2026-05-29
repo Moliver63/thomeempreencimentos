@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { imoveisAPI, leadsAPI, type Imovel } from "../services/api";
 import { PropertyImage } from "../components/PropertyImage";
+import { PropertyCarousel } from "../components/PropertyCarousel";
 
 const PHONE = "554733112896";
 
@@ -121,6 +122,7 @@ export function ImovelDetalhePage() {
 
   const enderecoCompleto = [data.endereco, data.bairro, `${data.cidade} - ${data.estado}`].filter(Boolean).join(", ");
   const whatsappMessage = encodeURIComponent(`Olá! Tenho interesse no imóvel ${data.titulo}. Pode me passar mais informações?`);
+  const fotosGaleria = (data.galeria || []).filter((foto) => Boolean(foto?.url));
 
   const specs = [
     data.quartos ? { icon: BedDouble, label: "Quartos", value: String(data.quartos) } : null,
@@ -155,12 +157,20 @@ export function ImovelDetalhePage() {
           )}
         </div>
 
-        <PropertyImage
-          src={data.imagem_capa}
-          alt={data.titulo}
-          className="h-[320px] rounded-[28px] border border-white/10 md:h-[520px]"
-          fallbackLogoClassName="h-28 w-auto opacity-15"
-        />
+        {fotosGaleria.length > 0 ? (
+          <PropertyCarousel
+            images={fotosGaleria}
+            fallbackSrc={data.imagem_capa}
+            title={data.titulo}
+          />
+        ) : (
+          <PropertyImage
+            src={data.imagem_capa}
+            alt={data.titulo}
+            className="h-[320px] rounded-[28px] border border-white/10 md:h-[520px]"
+            fallbackLogoClassName="h-28 w-auto opacity-15"
+          />
+        )}
       </section>
 
       <section className="mx-auto mt-10 grid max-w-7xl gap-8 px-6 lg:grid-cols-[1.3fr_0.7fr]">
@@ -169,6 +179,16 @@ export function ImovelDetalhePage() {
             <p className="mb-4 text-xs uppercase tracking-[0.35em] text-[#c9a84c]">Sobre o imóvel</p>
             <p className="text-base leading-8 text-white/75">{data.descricao}</p>
           </div>
+
+          {fotosGaleria.length > 1 && (
+            <div className="rounded-3xl border border-white/10 bg-[#111] p-8">
+              <p className="mb-2 text-xs uppercase tracking-[0.35em] text-[#c9a84c]">Galeria</p>
+              <h2 className="mb-2 text-2xl font-thin">Carrossel de fotos</h2>
+              <p className="text-sm leading-7 text-white/45">
+                Este imóvel possui {fotosGaleria.length} fotos cadastradas. Use as setas ou as miniaturas para navegar pela galeria.
+              </p>
+            </div>
+          )}
 
           {specs.length > 0 && (
             <div className="rounded-3xl border border-white/10 bg-[#111] p-8">
