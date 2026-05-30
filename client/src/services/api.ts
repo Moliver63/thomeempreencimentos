@@ -96,6 +96,16 @@ export const imoveisAPI = {
   toggle: (id: number, campo: "publicado" | "destaque") => api.patch(`/empreendimentos/${id}/toggle`, { campo }),
 };
 
+export const uploadAPI = {
+  imagem: (image: string, folder = "thome-imoveis") =>
+    api.post<{ success: boolean; url: string; public_id: string; width: number; height: number }>("/upload", { image, folder }),
+  multiple: (images: string[], folder = "thome-imoveis") =>
+    api.post<{ success: boolean; data: Array<{ success: boolean; url?: string; public_id?: string; error?: string }> }>("/upload/multiple", {
+      images,
+      folder,
+    }),
+};
+
 export const leadsAPI = {
   criar: (data: { nome: string; email: string; telefone: string; imovel_id?: number; mensagem?: string }) =>
     api.post<{ success: boolean; message: string }>("/leads", data),

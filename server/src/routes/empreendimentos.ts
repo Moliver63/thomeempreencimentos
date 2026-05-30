@@ -8,6 +8,12 @@ export const empreendimentosRouter = Router();
 
 type ImovelRow = typeof imoveis.$inferSelect;
 type GaleriaRow = typeof galeria_imoveis.$inferSelect;
+type GaleriaInput = {
+  url: string;
+  alt?: string | null;
+  ordem?: number | null;
+  capa?: boolean | null;
+};
 
 async function attachGallery(items: ImovelRow[]) {
   const enriched = await Promise.all(
@@ -34,32 +40,54 @@ async function attachGalleryToOne(item: ImovelRow | undefined) {
   return enriched;
 }
 
-function normalizeGalleryInput(input: unknown): string[] {
+function normalizeGalleryInput(input: unknown): GaleriaInput[] {
   if (!Array.isArray(input)) return [];
 
-  return input
-    .map((entry) => {
-      if (typeof entry === "string") return entry.trim();
-      if (entry && typeof entry === "object" && "url" in entry && typeof (entry as any).url === "string") {
-        return (entry as any).url.trim();
+  const fotos = input
+    .map<GaleriaInput | null>((entry, index) => {
+      if (typeof entry === "string") {
+        const url = entry.trim();
+        return url ? { url, alt: null, ordem: index, capa: index === 0 } : null;
       }
-      return "";
+
+      if (entry && typeof entry === "object" && "url" in entry && typeof (entry as any).url === "string") {
+        const url = (entry as any).url.trim();
+        if (!url) return null;
+
+        return {
+          url,
+          alt: typeof (entry as any).alt === "string" ? (entry as any).alt.trim() : null,
+          ordem: typeof (entry as any).ordem === "number" ? (entry as any).ordem : index,
+          capa: Boolean((entry as any).capa),
+        };
+      }
+
+      return null;
     })
-    .filter(Boolean);
+    .filter((item): item is GaleriaInput => Boolean(item))
+    .sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
+
+  const capaIndex = fotos.findIndex((foto) => foto.capa);
+
+  return fotos.map((foto, index) => ({
+    ...foto,
+    ordem: index,
+    capa: capaIndex >= 0 ? index === capaIndex : index === 0,
+  }));
 }
 
-async function persistGallery(imovelId: number, titulo: string, fotos: string[]) {
+async function persistGallery(imovelId: number, titulo: string, fotos: GaleriaInput[]) {
   await db.delete(galeria_imoveis).where(eq(galeria_imoveis.imovel_id, imovelId));
 
   if (fotos.length === 0) return;
 
   await db.insert(galeria_imoveis).values(
-    fotos.map((url, index) => ({
+    fotos.map((foto, index) => ({
       imovel_id: imovelId,
-      url,
-      alt: `${titulo} - Foto ${index + 1}`,
+      url: foto.url,
+      alt: foto.alt?.trim() || `${titulo} - Foto ${index + 1}`,
       ordem: index,
-      capa: index === 0,
+      capa: Boolean(foto.capa),
     }))
   );
 }
@@ -159,7 +187,7 @@ empreendimentosRouter.post("/", requireAdmin, async (req: Request, res: Response
     }
 
     const fotos = normalizeGalleryInput(b.galeria);
-    const imagemCapa = b.imagem_capa || fotos[0] || null;
+    const imagemCapa = b.imagem_capa || fotos.find((foto) => foto.capa)?.url || fotos[0]?.url || null;
 
     const [novo] = await db
       .insert(imoveis)
@@ -213,7 +241,9 @@ empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Respon
     const u: any = { updated_at: new Date() };
 
     const fotos = b.galeria !== undefined ? normalizeGalleryInput(b.galeria) : undefined;
-    const imagemCapa = b.imagem_capa !== undefined ? b.imagem_capa || fotos?.[0] || null : undefined;
+    const imagemCapa = b.imagem_capa !== undefined
+      ? b.imagem_capa || fotos?.find((foto) => foto.capa)?.url || fotos?.[0]?.url || null
+      : undefined;
 
     if (b.titulo) u.titulo = String(b.titulo);
     if (b.descricao) u.descricao = String(b.descricao);
