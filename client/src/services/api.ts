@@ -104,6 +104,12 @@ export const uploadAPI = {
       images,
       folder,
     }),
+  arquivo: (file: string, folder = "thome-documentos", filename?: string) =>
+    api.post<{ success: boolean; url: string; public_id: string; bytes: number; format: string; original_filename: string }>("/upload/file", {
+      file,
+      folder,
+      filename,
+    }),
 };
 
 export const leadsAPI = {

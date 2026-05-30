@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import {
   Plus, Pencil, Trash2, Eye, EyeOff, Star, StarOff,
   Search, X, Upload, Image, Link as LinkIcon, ArrowUp,
-  ArrowDown, Check, Loader2
+  ArrowDown, Check, Loader2, FileText, ExternalLink
 } from "lucide-react";
 
 const CATS = [
@@ -405,6 +405,8 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
   const [fotos, setFotos] = useState<GalleryDraft[]>(
     () => isEdit ? normalizeGalleryDrafts(imovel.galeria ?? []) : []
   );
+  const [pdfUploading, setPdfUploading] = useState(false);
+  const pdfRef = useRef<HTMLInputElement>(null);
   const [aba,   setAba]   = useState<"info"|"midia"|"valores"|"publicacao">("info");
 
   const mut = useMutation({
@@ -418,6 +420,37 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
   });
 
   const n = (v: any) => v === "" || v === null || v === undefined ? null : Number(v);
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      toast.error("Selecione um arquivo PDF valido.");
+      e.target.value = "";
+      return;
+    }
+
+    setPdfUploading(true);
+
+    try {
+      const dataUrl = await fileToDataUrl(file);
+
+      try {
+        const response = await uploadAPI.arquivo(dataUrl, "thome-imoveis/tabelas-precos", file.name);
+        setForm((f: any) => ({ ...f, tabela_precos_url: response.data.url }));
+        toast.success("PDF da tabela de precos enviado com sucesso.");
+      } catch {
+        setForm((f: any) => ({ ...f, tabela_precos_url: dataUrl }));
+        toast.error("Upload externo indisponivel. O PDF foi mantido em base64 neste cadastro.");
+      }
+    } catch {
+      toast.error("Nao foi possivel ler o PDF selecionado.");
+    } finally {
+      setPdfUploading(false);
+      e.target.value = "";
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -578,14 +611,58 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
                   <F name="valor_condominio" label="Condominio R$/mes"  type="number" placeholder="800" />
                   <F name="valor_iptu"       label="IPTU R$/ano"        type="number" placeholder="3600" />
                 </div>
-                <F
-                  name="tabela_precos_url"
-                  label="Tabela de Precos"
-                  placeholder="https://... PDF, imagem ou link externo"
-                />
+                <div className="space-y-3">
+                  <F
+                    name="tabela_precos_url"
+                    label="Tabela de Precos"
+                    placeholder="https://... PDF, imagem ou link externo"
+                  />
+
+                  <div className="rounded border border-white/10 bg-white/[0.03] p-4">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="text-white text-sm font-medium flex items-center gap-2"><FileText size={15} className="text-[#c9a84c]" /> Upload de PDF</p>
+                        <p className="text-white/40 text-xs mt-1">Envie a tabela de precos em PDF para preencher automaticamente o link do empreendimento.</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => pdfRef.current?.click()}
+                          disabled={pdfUploading}
+                          className="inline-flex items-center gap-2 rounded border border-white/10 px-3 py-2 text-xs tracking-widest uppercase text-white/70 hover:border-[#c9a84c]/40 hover:text-[#c9a84c] disabled:opacity-60"
+                        >
+                          {pdfUploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />} {pdfUploading ? "Enviando..." : "Upload PDF"}
+                        </button>
+                        <input ref={pdfRef} type="file" accept="application/pdf,.pdf" onChange={handlePdfUpload} className="hidden" />
+                        {form.tabela_precos_url && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => window.open(form.tabela_precos_url, "_blank", "noopener,noreferrer")}
+                              className="inline-flex items-center gap-2 rounded border border-white/10 px-3 py-2 text-xs tracking-widest uppercase text-white/70 hover:border-[#c9a84c]/40 hover:text-[#c9a84c]"
+                            >
+                              <ExternalLink size={13} /> Abrir
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setForm((f: any) => ({ ...f, tabela_precos_url: "" }))}
+                              className="inline-flex items-center gap-2 rounded border border-red-500/20 px-3 py-2 text-xs tracking-widest uppercase text-red-300 hover:bg-red-500/10"
+                            >
+                              <Trash2 size={13} /> Remover
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {form.tabela_precos_url && (
+                      <p className="mt-3 break-all text-[11px] text-emerald-400">Arquivo vinculado: {form.tabela_precos_url}</p>
+                    )}
+                  </div>
+                </div>
                 <div className="bg-white/3 rounded border border-white/5 p-4 space-y-2">
                   <p className="text-white/30 text-xs">Deixe em branco os valores que nao se aplicam. Para imoveis de locacao, preencha apenas o Valor Locacao.</p>
-                  <p className="text-white/30 text-xs">A tabela de precos pode ser um PDF, uma imagem ou um link externo. Ela sera exibida na pagina publica do empreendimento.</p>
+                  <p className="text-white/30 text-xs">A tabela de precos pode ser um PDF enviado pelo painel, uma imagem ou um link externo. Ela sera exibida na pagina publica do empreendimento.</p>
                 </div>
               </>
             )}
