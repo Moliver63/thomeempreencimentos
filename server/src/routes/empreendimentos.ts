@@ -189,6 +189,7 @@ empreendimentosRouter.post("/", requireAdmin, async (req: Request, res: Response
         construtora_parceira: b.construtora_parceira || null,
         contato_parceiro: b.contato_parceiro || null,
         imagem_capa: imagemCapa,
+        tabela_precos_url: b.tabela_precos_url || null,
         destaque: b.destaque ?? false,
         publicado: b.publicado ?? false,
         corretor_id: b.corretor_id ? Number(b.corretor_id) : null,
@@ -238,6 +239,7 @@ empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Respon
     if (b.construtora_parceira !== undefined) u.construtora_parceira = b.construtora_parceira || null;
     if (b.contato_parceiro !== undefined) u.contato_parceiro = b.contato_parceiro || null;
     if (imagemCapa !== undefined) u.imagem_capa = imagemCapa;
+    if (b.tabela_precos_url !== undefined) u.tabela_precos_url = b.tabela_precos_url || null;
     if (b.corretor_id !== undefined) u.corretor_id = b.corretor_id ? Number(b.corretor_id) : null;
     if (b.destaque !== undefined) u.destaque = Boolean(b.destaque);
     if (b.publicado !== undefined) u.publicado = Boolean(b.publicado);

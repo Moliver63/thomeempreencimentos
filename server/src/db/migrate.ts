@@ -65,12 +65,18 @@ async function migrate() {
       construtora_parceira TEXT,
       contato_parceiro     TEXT,
       imagem_capa          TEXT,
+      tabela_precos_url    TEXT,
       corretor_id          INTEGER REFERENCES usuarios(id),
       destaque             BOOLEAN DEFAULT false,
       publicado            BOOLEAN DEFAULT false,
       created_at           TIMESTAMP DEFAULT NOW(),
       updated_at           TIMESTAMP DEFAULT NOW()
     )
+  `;
+
+  await client`
+    ALTER TABLE imoveis
+    ADD COLUMN IF NOT EXISTS tabela_precos_url TEXT
   `;
 
   await client`

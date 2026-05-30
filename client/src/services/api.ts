@@ -50,6 +50,7 @@ export interface Imovel {
   construtora_parceira: string | null;
   contato_parceiro: string | null;
   imagem_capa: string | null;
+  tabela_precos_url?: string | null;
   galeria?: GaleriaImagem[];
   corretor_id: number | null;
   destaque: boolean;

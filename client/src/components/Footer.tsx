@@ -34,7 +34,7 @@ export function Footer() {
         <div>
           <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-6">Contato</p>
           <div className="space-y-3 text-white/40 text-sm">
-            <div className="flex items-center gap-2"><Phone size={12} className="text-[#c9a84c]/60" /> (47) 3311-2896</div>
+            <div className="flex items-center gap-2"><Phone size={12} className="text-[#c9a84c]/60" /> (47) 99705-0616</div>
             <div className="flex items-start gap-2">
               <MapPin size={12} className="text-[#c9a84c]/60 mt-0.5 shrink-0" />
               Rua 3122, nº 75 - SL 04<br />Centro, Balneário Camboriú-SC

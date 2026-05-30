@@ -44,7 +44,7 @@ export function ContatoPage() {
             </p>
             <div className="space-y-6">
               {[
-                { Icon: Phone,     text: "(47) 3311-2896",                          href: "tel:+554733112896" },
+                { Icon: Phone,     text: "(47) 99705-0616",                         href: "tel:+5547997050616" },
                 { Icon: Mail,      text: "contato@thomeempreendimentos.com.br",      href: "mailto:contato@thomeempreendimentos.com.br" },
                 { Icon: MapPin,    text: "Rua 3122, nÂº 75 - SL 04, Centro, BalneÃ¡rio CamboriÃº-SC", href: undefined },
                 { Icon: Instagram, text: "@thomeempreendimentos",                   href: "https://www.instagram.com/thomeempreendimentos" },

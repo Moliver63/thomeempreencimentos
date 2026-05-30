@@ -39,8 +39,8 @@ export function Navbar() {
           ))}
         </div>
         <div className="hidden md:flex items-center gap-3">
-          <a href="tel:+554733112896" className="flex items-center gap-2 border border-[#c9a84c]/50 text-[#c9a84c] px-4 py-2 text-xs tracking-widest uppercase hover:bg-[#c9a84c] hover:text-black transition-all duration-300">
-            <Phone size={13} /> (47) 3311-2896
+          <a href="tel:+5547997050616" className="flex items-center gap-2 border border-[#c9a84c]/50 text-[#c9a84c] px-4 py-2 text-xs tracking-widest uppercase hover:bg-[#c9a84c] hover:text-black transition-all duration-300">
+            <Phone size={13} /> (47) 99705-0616
           </a>
           {user ? (
             <div className="flex items-center gap-2">
@@ -66,8 +66,8 @@ export function Navbar() {
               {l.label}
             </Link>
           ))}
-          <a href="tel:+554733112896" className="flex items-center gap-2 px-6 py-4 text-[#c9a84c] text-sm border-b border-white/5">
-            <Phone size={14} /> (47) 3311-2896
+          <a href="tel:+5547997050616" className="flex items-center gap-2 px-6 py-4 text-[#c9a84c] text-sm border-b border-white/5">
+            <Phone size={14} /> (47) 99705-0616
           </a>
           {user ? (
             <>

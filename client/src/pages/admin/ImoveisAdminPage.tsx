@@ -29,7 +29,7 @@ const EMPTY = {
   endereco:"", bairro:"", cidade:"Balneario Camboriu", estado:"SC", cep:"",
   area_total:"", area_privativa:"", quartos:"", suites:"", banheiros:"", vagas:"", pavimentos:"",
   valor_venda:"", valor_locacao:"", valor_condominio:"", valor_iptu:"",
-  construtora_parceira:"", contato_parceiro:"", imagem_capa:"",
+  construtora_parceira:"", contato_parceiro:"", imagem_capa:"", tabela_precos_url:"",
   destaque: false, publicado: false,
 };
 
@@ -209,6 +209,7 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
     valor_condominio: imovel.valor_condominio ?? "",
     valor_iptu:       imovel.valor_iptu       ?? "",
     imagem_capa:      imovel.imagem_capa      ?? "",
+    tabela_precos_url: imovel.tabela_precos_url ?? "",
     construtora_parceira: imovel.construtora_parceira ?? "",
     contato_parceiro:     imovel.contato_parceiro     ?? "",
   } : { ...EMPTY });
@@ -382,8 +383,14 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
                   <F name="valor_condominio" label="Condominio R$/mes"  type="number" placeholder="800" />
                   <F name="valor_iptu"       label="IPTU R$/ano"        type="number" placeholder="3600" />
                 </div>
-                <div className="bg-white/3 rounded border border-white/5 p-4">
+                <F
+                  name="tabela_precos_url"
+                  label="Tabela de Precos"
+                  placeholder="https://... PDF, imagem ou link externo"
+                />
+                <div className="bg-white/3 rounded border border-white/5 p-4 space-y-2">
                   <p className="text-white/30 text-xs">Deixe em branco os valores que nao se aplicam. Para imoveis de locacao, preencha apenas o Valor Locacao.</p>
+                  <p className="text-white/30 text-xs">A tabela de precos pode ser um PDF, uma imagem ou um link externo. Ela sera exibida na pagina publica do empreendimento.</p>
                 </div>
               </>
             )}

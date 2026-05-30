@@ -242,7 +242,7 @@ export function HomePage() {
               Deixe seus dados e nossa equipe entrará em contato para apresentar as melhores opções de acordo com seu perfil.
             </p>
             <div className="space-y-4">
-              <div className="flex items-start gap-3 text-sm text-white/40"><Phone size={14} className="mt-0.5 shrink-0 text-[#c9a84c]" /> (47) 3311-2896</div>
+              <div className="flex items-start gap-3 text-sm text-white/40"><Phone size={14} className="mt-0.5 shrink-0 text-[#c9a84c]" /> (47) 99705-0616</div>
               <div className="flex items-start gap-3 text-sm text-white/40"><Mail size={14} className="mt-0.5 shrink-0 text-[#c9a84c]" /> contato@thomeempreendimentos.com.br</div>
               <div className="flex items-start gap-3 text-sm text-white/40"><MapPin size={14} className="mt-0.5 shrink-0 text-[#c9a84c]" /> Rua 3122, nº 75 - SL 04, Centro, Balneário Camboriú-SC</div>
             </div>

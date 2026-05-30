@@ -12,6 +12,7 @@ import {
   Building2,
   Car,
   DollarSign,
+  FileText,
   Mail,
   MapPin,
   MessageCircle,
@@ -21,7 +22,7 @@ import { imoveisAPI, leadsAPI, type Imovel } from "../services/api";
 import { PropertyImage } from "../components/PropertyImage";
 import { PropertyCarousel } from "../components/PropertyCarousel";
 
-const PHONE = "554733112896";
+const PHONE = "5547997050616";
 
 const leadSchema = z.object({
   nome: z.string().min(2, "Nome obrigatório"),
@@ -247,9 +248,22 @@ export function ImovelDetalhePage() {
               >
                 <MessageCircle size={16} /> Falar no WhatsApp
               </a>
+              <a href={`https://wa.me/${PHONE}`} target="_blank" rel="noreferrer" className="flex w-full items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-sm text-white/75 hover:border-[#c9a84c]/30 hover:text-[#c9a84c]">
+                <MessageCircle size={16} /> (47) 99705-0616
+              </a>
               <a href="mailto:contato@thomeempreendimentos.com.br" className="flex w-full items-center justify-center gap-2 rounded-full border border-[#c9a84c]/30 px-5 py-3 text-sm text-[#c9a84c]">
                 <Mail size={16} /> contato@thomeempreendimentos.com.br
               </a>
+              {data.tabela_precos_url && (
+                <a
+                  href={data.tabela_precos_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex w-full items-center justify-center gap-2 rounded-full border border-[#c9a84c]/30 bg-[#c9a84c]/5 px-5 py-3 text-sm text-[#c9a84c] hover:bg-[#c9a84c]/10"
+                >
+                  <FileText size={16} /> Ver tabela de preços
+                </a>
+              )}
             </div>
           </div>
 

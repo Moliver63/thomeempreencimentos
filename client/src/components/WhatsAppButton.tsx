@@ -1,6 +1,6 @@
 import { MessageCircle } from "lucide-react";
 
-const PHONE = "554733112896";
+const PHONE = "5547997050616";
 const MESSAGE = encodeURIComponent("Olá! Quero saber mais sobre os imóveis da Thomé Empreendimentos.");
 
 export function WhatsAppButton() {
