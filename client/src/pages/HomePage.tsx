@@ -138,7 +138,7 @@ export function HomePage() {
 
         <div className="relative z-10 mx-auto max-w-4xl px-6 pb-12 pt-24 text-center">
           <p className="mb-10 text-[11px] uppercase tracking-[0.5em] text-[#c9a84c]/70">
-            Há mais de 15 anos edificando sonhos
+            Há mais de 23 anos edificando sonhos
           </p>
           <div className="mb-14 flex justify-center">
             <img src="/logo_full.png" alt="Thomé Empreendimentos" className="w-auto object-contain" style={{ height: "clamp(140px, 20vw, 220px)" }} />
@@ -163,7 +163,7 @@ export function HomePage() {
       <section className="border-y border-white/5 py-14">
         <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 px-6 md:grid-cols-4">
           {[
-            { n: "15+", label: "Anos de Mercado" },
+            { n: "23+", label: "Anos de Mercado" },
             { n: "5+", label: "Obras Entregues" },
             { n: "2", label: "Engenheiros Especializados" },
             { n: "100%", label: "Satisfação dos Clientes" },
