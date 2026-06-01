@@ -45,7 +45,7 @@ async function migrate() {
       status               status_imovel NOT NULL DEFAULT 'disponivel',
       endereco             TEXT          NOT NULL,
       bairro               TEXT,
-      cidade               TEXT          NOT NULL DEFAULT 'Balneario Camboriu',
+      cidade               TEXT          NOT NULL DEFAULT 'Balneário Camboriú',
       estado               TEXT          NOT NULL DEFAULT 'SC',
       cep                  TEXT,
       latitude             REAL,

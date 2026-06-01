@@ -24,11 +24,13 @@ const STATUS = ["disponivel","reservado","vendido","locado"];
 const STATUS_LABEL: Record<string,string> = {
   disponivel:"Disponivel", reservado:"Reservado", vendido:"Vendido", locado:"Locado"
 };
+const DEFAULT_CITY = "Balneário Camboriú";
+const DEFAULT_STATE = "SC";
 
 const EMPTY = {
   titulo:"", descricao:"", categoria:"pronto", tipo:"apartamento", status:"disponivel",
-  endereco:"", bairro:"", cidade:"Balneario Camboriu", estado:"SC", cep:"",
-  area_total:"", area_privativa:"", quartos:"", suites:"", banheiros:"", vagas:"", pavimentos:"",
+  endereco:"", bairro:"", cidade:DEFAULT_CITY, estado:DEFAULT_STATE, cep:"",
+  area_total:"", area_privativa:"", quartos:"", suites:"", banheiros:"", vagas:"", pavimentos:"", andar:"",
   valor_venda:"", valor_locacao:"", valor_condominio:"", valor_iptu:"",
   construtora_parceira:"", contato_parceiro:"", imagem_capa:"", tabela_precos_url:"",
   destaque: false, publicado: false,
@@ -40,6 +42,8 @@ type GalleryDraft = {
   ordem: number;
   capa: boolean;
 };
+
+type InfoErrors = Partial<Record<string, string>>;
 
 const IMAGE_MAX_SIZE_MB = 10;
 const IMAGE_MAX_SIZE_BYTES = IMAGE_MAX_SIZE_MB * 1024 * 1024;
@@ -451,6 +455,7 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
     banheiros:        imovel.banheiros        ?? "",
     vagas:            imovel.vagas            ?? "",
     pavimentos:       imovel.pavimentos       ?? "",
+    andar:            imovel.andar            ?? "",
     valor_venda:      imovel.valor_venda      ?? "",
     valor_locacao:    imovel.valor_locacao    ?? "",
     valor_condominio: imovel.valor_condominio ?? "",
@@ -459,6 +464,10 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
     tabela_precos_url: imovel.tabela_precos_url ?? "",
     construtora_parceira: imovel.construtora_parceira ?? "",
     contato_parceiro:     imovel.contato_parceiro     ?? "",
+    cidade: imovel.cidade ?? DEFAULT_CITY,
+    estado: imovel.estado ?? DEFAULT_STATE,
+    cep: imovel.cep ?? "",
+    bairro: imovel.bairro ?? "",
   } : { ...EMPTY });
 
   const [fotos, setFotos] = useState<GalleryDraft[]>(
@@ -467,6 +476,7 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
   const [pdfUploading, setPdfUploading] = useState(false);
   const pdfRef = useRef<HTMLInputElement>(null);
   const [aba,   setAba]   = useState<"info"|"midia"|"valores"|"publicacao">("info");
+  const [errors, setErrors] = useState<InfoErrors>({});
 
   const mut = useMutation({
     mutationFn: (data: any) => isEdit ? imoveisAPI.atualizar(imovel!.id, data) : imoveisAPI.criar(data),
@@ -479,6 +489,104 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
   });
 
   const n = (v: any) => v === "" || v === null || v === undefined ? null : Number(v);
+  const cleanText = (value: any) => String(value ?? "").replace(/\s+/g, " ").trim();
+
+  const setField = (name: string, value: any) => {
+    setForm((f: any) => {
+      const next = { ...f, [name]: value };
+
+      if (name === "categoria" && value !== "terceiros") {
+        next.construtora_parceira = "";
+        next.contato_parceiro = "";
+      }
+
+      if (name === "estado") {
+        next.estado = String(value).toUpperCase().slice(0, 2);
+      }
+
+      if (name === "cep") {
+        const digits = String(value).replace(/\D/g, "").slice(0, 8);
+        next.cep = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+      }
+
+      return next;
+    });
+
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[name];
+      if (name === "categoria" && value !== "terceiros") {
+        delete next.construtora_parceira;
+        delete next.contato_parceiro;
+      }
+      return next;
+    });
+  };
+
+  const validateInfoForm = () => {
+    const nextErrors: InfoErrors = {};
+    const titulo = cleanText(form.titulo);
+    const descricao = cleanText(form.descricao);
+    const endereco = cleanText(form.endereco);
+    const cidade = cleanText(form.cidade);
+    const estado = cleanText(form.estado).toUpperCase();
+    const cep = cleanText(form.cep);
+
+    if (!titulo) {
+      nextErrors.titulo = "Informe o título do imóvel.";
+    } else if (titulo.length < 4) {
+      nextErrors.titulo = "Use pelo menos 4 caracteres no título.";
+    }
+
+    if (!descricao) {
+      nextErrors.descricao = "Informe a descrição do imóvel.";
+    } else if (descricao.length < 20) {
+      nextErrors.descricao = "A descrição deve ter pelo menos 20 caracteres.";
+    }
+
+    if (!endereco) nextErrors.endereco = "Informe o endereço do imóvel.";
+    if (!cidade) nextErrors.cidade = "Informe a cidade.";
+
+    if (!estado) {
+      nextErrors.estado = "Informe a sigla do estado.";
+    } else if (estado.length !== 2) {
+      nextErrors.estado = "Use a sigla do estado com 2 letras.";
+    }
+
+    if (cep && !/^\d{5}-?\d{3}$/.test(cep)) {
+      nextErrors.cep = "Informe um CEP válido no formato 00000-000.";
+    }
+
+    const validateInteger = (name: string, label: string) => {
+      const rawValue = form[name];
+      if (rawValue === "" || rawValue === null || rawValue === undefined) return;
+      const numericValue = Number(rawValue);
+      if (!Number.isInteger(numericValue) || numericValue < 0) {
+        nextErrors[name] = `${label} deve ser um número inteiro maior ou igual a 0.`;
+      }
+    };
+
+    const validateNumber = (name: string, label: string) => {
+      const rawValue = form[name];
+      if (rawValue === "" || rawValue === null || rawValue === undefined) return;
+      const numericValue = Number(rawValue);
+      if (!Number.isFinite(numericValue) || numericValue < 0) {
+        nextErrors[name] = `${label} deve ser um número maior ou igual a 0.`;
+      }
+    };
+
+    validateInteger("quartos", "Quartos");
+    validateInteger("suites", "Suítes");
+    validateInteger("banheiros", "Banheiros");
+    validateInteger("vagas", "Vagas");
+    validateInteger("pavimentos", "Pavimentos");
+    validateInteger("andar", "Andar");
+    validateNumber("area_privativa", "Área privativa");
+    validateNumber("area_total", "Área total");
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
 
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -513,6 +621,13 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateInfoForm()) {
+      setAba("info");
+      toast.error("Corrija os campos destacados na aba Informações.");
+      return;
+    }
+
     const galeriaPayload = normalizeGalleryDrafts(fotos).map((foto, index) => ({
       url: foto.url,
       alt: foto.alt || `${form.titulo || "Imovel"} - Foto ${index + 1}`,
@@ -523,6 +638,15 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
 
     mut.mutate({
       ...form,
+      titulo: cleanText(form.titulo),
+      descricao: cleanText(form.descricao),
+      endereco: cleanText(form.endereco),
+      bairro: cleanText(form.bairro),
+      cidade: cleanText(form.cidade) || DEFAULT_CITY,
+      estado: cleanText(form.estado).toUpperCase() || DEFAULT_STATE,
+      cep: cleanText(form.cep),
+      construtora_parceira: form.categoria === "terceiros" ? cleanText(form.construtora_parceira) : "",
+      contato_parceiro: form.categoria === "terceiros" ? cleanText(form.contato_parceiro) : "",
       imagem_capa:     imagemCapa,
       galeria:         galeriaPayload,
       area_total:      n(form.area_total),
@@ -532,6 +656,7 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
       banheiros:       n(form.banheiros),
       vagas:           n(form.vagas),
       pavimentos:      n(form.pavimentos),
+      andar:           n(form.andar),
       valor_venda:     n(form.valor_venda),
       valor_locacao:   n(form.valor_locacao),
       valor_condominio: n(form.valor_condominio),
@@ -539,21 +664,33 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
     });
   };
 
-  const F = ({ name, label, type = "text", req = false, placeholder = "" }: any) => (
-    <div>
-      <label className="block text-white/40 text-xs tracking-widest uppercase mb-1.5">{label}{req && " *"}</label>
-      <input name={name} type={type} required={req} placeholder={placeholder}
-        value={form[name] ?? ""}
-        onChange={e => setForm((f: any) => ({ ...f, [name]: e.target.value }))}
-        className="w-full bg-white/5 border border-white/10 text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#c9a84c]/50 rounded" />
-    </div>
-  );
+  const F = ({ name, label, type = "text", req = false, placeholder = "" }: any) => {
+    const error = errors[name];
+    const isNumber = type === "number";
+
+    return (
+      <div>
+        <label className="block text-white/40 text-xs tracking-widest uppercase mb-1.5">{label}{req && " *"}</label>
+        <input
+          name={name}
+          type={type}
+          required={req}
+          placeholder={placeholder}
+          min={isNumber ? 0 : undefined}
+          value={form[name] ?? ""}
+          onChange={e => setField(name, e.target.value)}
+          className={`w-full bg-white/5 border text-white px-3 py-2.5 text-sm focus:outline-none rounded ${error ? "border-red-400/50 focus:border-red-400" : "border-white/10 focus:border-[#c9a84c]/50"}`}
+        />
+        {error && <p className="mt-1 text-[11px] text-red-300">{error}</p>}
+      </div>
+    );
+  };
 
   const S = ({ name, label, opts }: any) => (
     <div>
       <label className="block text-white/40 text-xs tracking-widest uppercase mb-1.5">{label}</label>
       <select value={form[name] ?? ""}
-        onChange={e => setForm((f: any) => ({ ...f, [name]: e.target.value }))}
+        onChange={e => setField(name, e.target.value)}
         className="w-full bg-[#1a1a1a] border border-white/10 text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#c9a84c]/50 rounded">
         {opts.map((o: any) => <option key={o.v} value={o.v}>{o.l}</option>)}
       </select>
@@ -601,37 +738,42 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
                 <div>
                   <label className="block text-white/40 text-xs tracking-widest uppercase mb-1.5">Descricao *</label>
                   <textarea value={form.descricao ?? ""}
-                    onChange={e => setForm((f: any) => ({ ...f, descricao: e.target.value }))}
-                    required rows={4} placeholder="Descreva o imovel..."
-                    className="w-full bg-white/5 border border-white/10 text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#c9a84c]/50 rounded resize-none" />
+                    onChange={e => setField("descricao", e.target.value)}
+                    required rows={4} maxLength={2000} placeholder="Descreva o imovel..."
+                    className={`w-full bg-white/5 border text-white px-3 py-2.5 text-sm focus:outline-none rounded resize-none ${errors.descricao ? "border-red-400/50 focus:border-red-400" : "border-white/10 focus:border-[#c9a84c]/50"}`} />
+                  <div className="mt-1 flex items-center justify-between gap-3">
+                    {errors.descricao ? <p className="text-[11px] text-red-300">{errors.descricao}</p> : <span className="text-[11px] text-white/20">Mínimo recomendado: 20 caracteres.</span>}
+                    <span className="text-[11px] text-white/20">{String(form.descricao ?? "").length}/2000</span>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <S name="categoria" label="Categoria" opts={CATS.map(c => ({ v: c.value, l: c.label }))} />
                   <S name="tipo"      label="Tipo"      opts={TIPOS.map(t => ({ v: t, l: TIPO_LABEL[t] }))} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <S name="status" label="Status" opts={STATUS.map(s => ({ v: s, l: STATUS_LABEL[s] }))} />
                   <F name="bairro" label="Bairro" placeholder="Ex: Centro" />
                 </div>
                 <F name="endereco" label="Endereco" req placeholder="Ex: Rua 3122, 75" />
-                <div className="grid grid-cols-3 gap-4">
-                  <F name="cidade" label="Cidade" placeholder="Balneario Camboriu" />
-                  <F name="estado" label="Estado" placeholder="SC" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <F name="cidade" label="Cidade" req placeholder="Balneário Camboriú" />
+                  <F name="estado" label="Estado" req placeholder="SC" />
                   <F name="cep"    label="CEP"    placeholder="88330-000" />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <F name="quartos"   label="Quartos"   type="number" placeholder="3" />
                   <F name="suites"    label="Suites"    type="number" placeholder="1" />
                   <F name="banheiros" label="Banheiros" type="number" placeholder="2" />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <F name="vagas"          label="Vagas"           type="number" placeholder="2" />
                   <F name="pavimentos"     label="Pavimentos"      type="number" placeholder="27" />
+                  <F name="andar"          label="Andar"           type="number" placeholder="12" />
                   <F name="area_privativa" label="Area Privativa m2" type="number" placeholder="85" />
                 </div>
                 <F name="area_total" label="Area Total m2" type="number" placeholder="120" />
                 {form.categoria === "terceiros" && (
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-white/3 rounded border border-white/5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white/3 rounded border border-white/5">
                     <F name="construtora_parceira" label="Construtora Parceira" placeholder="Nome da construtora" />
                     <F name="contato_parceiro"     label="Contato Parceiro"    placeholder="(47) 9999-0000" />
                   </div>
@@ -796,6 +938,10 @@ function ImovelModal({ imovel, onClose }: { imovel?: Imovel; onClose: () => void
               {aba !== "publicacao" ? (
                 <button type="button"
                   onClick={() => {
+                    if (aba === "info" && !validateInfoForm()) {
+                      toast.error("Corrija os campos destacados na aba Informações.");
+                      return;
+                    }
                     const order = ["info","midia","valores","publicacao"];
                     const next = order[order.indexOf(aba) + 1];
                     if (next) setAba(next as any);

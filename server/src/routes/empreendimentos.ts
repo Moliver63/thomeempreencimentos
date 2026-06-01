@@ -40,6 +40,45 @@ async function attachGalleryToOne(item: ImovelRow | undefined) {
   return enriched;
 }
 
+const DEFAULT_CITY = "Balneário Camboriú";
+const DEFAULT_STATE = "SC";
+
+function normalizeText(value: unknown) {
+  return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function normalizeOptionalText(value: unknown) {
+  const normalized = normalizeText(value);
+  return normalized || null;
+}
+
+function normalizeCep(value: unknown) {
+  const digits = String(value ?? "").replace(/\D/g, "").slice(0, 8);
+  if (!digits) return null;
+  return digits.length === 8 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+}
+
+function parseNullableNumber(value: unknown, label: string, integer = false): { value: number | null; error?: string } {
+  if (value === undefined || value === null || value === "") {
+    return { value: null };
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return { value: null, error: `${label} inválido.` };
+  }
+
+  if (parsed < 0) {
+    return { value: null, error: `${label} não pode ser negativo.` };
+  }
+
+  if (integer && !Number.isInteger(parsed)) {
+    return { value: null, error: `${label} deve ser um número inteiro.` };
+  }
+
+  return { value: parsed };
+}
+
 function normalizeGalleryInput(input: unknown): GaleriaInput[] {
   if (!Array.isArray(input)) return [];
 
@@ -181,43 +220,76 @@ function toSlug(titulo: string): string {
 empreendimentosRouter.post("/", requireAdmin, async (req: Request, res: Response) => {
   try {
     const b = req.body;
+    const titulo = normalizeText(b.titulo);
+    const descricao = normalizeText(b.descricao);
+    const endereco = normalizeText(b.endereco);
+    const cidade = normalizeText(b.cidade) || DEFAULT_CITY;
+    const estado = (normalizeText(b.estado) || DEFAULT_STATE).toUpperCase();
+    const cep = normalizeCep(b.cep);
 
-    if (!b.titulo || !b.descricao || !b.categoria || !b.tipo || !b.endereco) {
-      return res.status(400).json({ success: false, error: "Campos obrigatórios faltando" });
+    if (!titulo) return res.status(400).json({ success: false, error: "Título é obrigatório" });
+    if (titulo.length < 4) return res.status(400).json({ success: false, error: "Título deve ter pelo menos 4 caracteres" });
+    if (!descricao) return res.status(400).json({ success: false, error: "Descrição é obrigatória" });
+    if (descricao.length < 20) return res.status(400).json({ success: false, error: "Descrição deve ter pelo menos 20 caracteres" });
+    if (!b.categoria || !b.tipo) return res.status(400).json({ success: false, error: "Categoria e tipo são obrigatórios" });
+    if (!endereco) return res.status(400).json({ success: false, error: "Endereço é obrigatório" });
+    if (!cidade) return res.status(400).json({ success: false, error: "Cidade é obrigatória" });
+    if (!estado || estado.length !== 2) return res.status(400).json({ success: false, error: "Estado deve ter 2 letras" });
+    if (cep && !/^\d{5}-\d{3}$/.test(cep)) return res.status(400).json({ success: false, error: "CEP inválido" });
+
+    const areaTotal = parseNullableNumber(b.area_total, "Área total");
+    const areaPrivativa = parseNullableNumber(b.area_privativa, "Área privativa");
+    const quartos = parseNullableNumber(b.quartos, "Quartos", true);
+    const suites = parseNullableNumber(b.suites, "Suítes", true);
+    const banheiros = parseNullableNumber(b.banheiros, "Banheiros", true);
+    const vagas = parseNullableNumber(b.vagas, "Vagas", true);
+    const pavimentos = parseNullableNumber(b.pavimentos, "Pavimentos", true);
+    const andar = parseNullableNumber(b.andar, "Andar", true);
+    const valorVenda = parseNullableNumber(b.valor_venda, "Valor de venda");
+    const valorLocacao = parseNullableNumber(b.valor_locacao, "Valor de locação");
+    const valorCondominio = parseNullableNumber(b.valor_condominio, "Valor de condomínio");
+    const valorIptu = parseNullableNumber(b.valor_iptu, "Valor de IPTU");
+
+    const numericResults = [areaTotal, areaPrivativa, quartos, suites, banheiros, vagas, pavimentos, andar, valorVenda, valorLocacao, valorCondominio, valorIptu];
+    const numericError = numericResults.find((result) => result.error)?.error;
+    if (numericError) {
+      return res.status(400).json({ success: false, error: numericError });
     }
 
     const fotos = normalizeGalleryInput(b.galeria);
-    const imagemCapa = b.imagem_capa || fotos.find((foto) => foto.capa)?.url || fotos[0]?.url || null;
+    const imagemCapa = normalizeOptionalText(b.imagem_capa) || fotos.find((foto) => foto.capa)?.url || fotos[0]?.url || null;
+    const categoria = b.categoria;
 
     const [novo] = await db
       .insert(imoveis)
       .values({
-        slug: toSlug(String(b.titulo)),
-        titulo: String(b.titulo),
-        descricao: String(b.descricao),
-        categoria: b.categoria,
+        slug: toSlug(titulo),
+        titulo,
+        descricao,
+        categoria,
         tipo: b.tipo,
         status: b.status || "disponivel",
-        endereco: String(b.endereco),
-        bairro: b.bairro || null,
-        cidade: b.cidade || "Balneário Camboriú",
-        estado: b.estado || "SC",
-        cep: b.cep || null,
-        area_total: b.area_total ? Number(b.area_total) : null,
-        area_privativa: b.area_privativa ? Number(b.area_privativa) : null,
-        quartos: b.quartos ? Number(b.quartos) : null,
-        suites: b.suites ? Number(b.suites) : null,
-        banheiros: b.banheiros ? Number(b.banheiros) : null,
-        vagas: b.vagas ? Number(b.vagas) : null,
-        pavimentos: b.pavimentos ? Number(b.pavimentos) : null,
-        valor_venda: b.valor_venda ? Number(b.valor_venda) : null,
-        valor_locacao: b.valor_locacao ? Number(b.valor_locacao) : null,
-        valor_condominio: b.valor_condominio ? Number(b.valor_condominio) : null,
-        valor_iptu: b.valor_iptu ? Number(b.valor_iptu) : null,
-        construtora_parceira: b.construtora_parceira || null,
-        contato_parceiro: b.contato_parceiro || null,
+        endereco,
+        bairro: normalizeOptionalText(b.bairro),
+        cidade,
+        estado,
+        cep,
+        area_total: areaTotal.value,
+        area_privativa: areaPrivativa.value,
+        quartos: quartos.value,
+        suites: suites.value,
+        banheiros: banheiros.value,
+        vagas: vagas.value,
+        pavimentos: pavimentos.value,
+        andar: andar.value,
+        valor_venda: valorVenda.value,
+        valor_locacao: valorLocacao.value,
+        valor_condominio: valorCondominio.value,
+        valor_iptu: valorIptu.value,
+        construtora_parceira: categoria === "terceiros" ? normalizeOptionalText(b.construtora_parceira) : null,
+        contato_parceiro: categoria === "terceiros" ? normalizeOptionalText(b.contato_parceiro) : null,
         imagem_capa: imagemCapa,
-        tabela_precos_url: b.tabela_precos_url || null,
+        tabela_precos_url: normalizeOptionalText(b.tabela_precos_url),
         destaque: b.destaque ?? false,
         publicado: b.publicado ?? false,
         corretor_id: b.corretor_id ? Number(b.corretor_id) : null,
@@ -237,44 +309,112 @@ empreendimentosRouter.post("/", requireAdmin, async (req: Request, res: Response
 empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
-    const b = req.body;
-    const u: any = { updated_at: new Date() };
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ success: false, error: "ID inválido" });
+    }
 
+    const b = req.body;
+    const [existente] = await db.select().from(imoveis).where(eq(imoveis.id, id));
+
+    if (!existente) {
+      return res.status(404).json({ success: false, error: "Imóvel não encontrado" });
+    }
+
+    const u: any = { updated_at: new Date() };
     const fotos = b.galeria !== undefined ? normalizeGalleryInput(b.galeria) : undefined;
     const imagemCapa = b.imagem_capa !== undefined
-      ? b.imagem_capa || fotos?.find((foto) => foto.capa)?.url || fotos?.[0]?.url || null
+      ? normalizeOptionalText(b.imagem_capa) || fotos?.find((foto) => foto.capa)?.url || fotos?.[0]?.url || null
       : undefined;
 
-    if (b.titulo) u.titulo = String(b.titulo);
-    if (b.descricao) u.descricao = String(b.descricao);
-    if (b.categoria) u.categoria = b.categoria;
-    if (b.tipo) u.tipo = b.tipo;
-    if (b.status) u.status = b.status;
-    if (b.endereco) u.endereco = String(b.endereco);
-    if (b.bairro !== undefined) u.bairro = b.bairro || null;
-    if (b.cidade !== undefined) u.cidade = b.cidade || "Balneário Camboriú";
-    if (b.estado !== undefined) u.estado = b.estado || "SC";
-    if (b.cep !== undefined) u.cep = b.cep || null;
-    if (b.quartos !== undefined) u.quartos = b.quartos ? Number(b.quartos) : null;
-    if (b.suites !== undefined) u.suites = b.suites ? Number(b.suites) : null;
-    if (b.banheiros !== undefined) u.banheiros = b.banheiros ? Number(b.banheiros) : null;
-    if (b.vagas !== undefined) u.vagas = b.vagas ? Number(b.vagas) : null;
-    if (b.pavimentos !== undefined) u.pavimentos = b.pavimentos ? Number(b.pavimentos) : null;
-    if (b.valor_venda !== undefined) u.valor_venda = b.valor_venda ? Number(b.valor_venda) : null;
-    if (b.valor_locacao !== undefined) u.valor_locacao = b.valor_locacao ? Number(b.valor_locacao) : null;
-    if (b.valor_condominio !== undefined) u.valor_condominio = b.valor_condominio ? Number(b.valor_condominio) : null;
-    if (b.valor_iptu !== undefined) u.valor_iptu = b.valor_iptu ? Number(b.valor_iptu) : null;
-    if (b.area_privativa !== undefined) u.area_privativa = b.area_privativa ? Number(b.area_privativa) : null;
-    if (b.area_total !== undefined) u.area_total = b.area_total ? Number(b.area_total) : null;
-    if (b.construtora_parceira !== undefined) u.construtora_parceira = b.construtora_parceira || null;
-    if (b.contato_parceiro !== undefined) u.contato_parceiro = b.contato_parceiro || null;
+    if (b.titulo !== undefined) {
+      const titulo = normalizeText(b.titulo);
+      if (!titulo) return res.status(400).json({ success: false, error: "Título é obrigatório" });
+      if (titulo.length < 4) return res.status(400).json({ success: false, error: "Título deve ter pelo menos 4 caracteres" });
+      u.titulo = titulo;
+      if (titulo !== existente.titulo) u.slug = toSlug(titulo);
+    }
+
+    if (b.descricao !== undefined) {
+      const descricao = normalizeText(b.descricao);
+      if (!descricao) return res.status(400).json({ success: false, error: "Descrição é obrigatória" });
+      if (descricao.length < 20) return res.status(400).json({ success: false, error: "Descrição deve ter pelo menos 20 caracteres" });
+      u.descricao = descricao;
+    }
+
+    if (b.categoria !== undefined) u.categoria = b.categoria;
+    if (b.tipo !== undefined) u.tipo = b.tipo;
+    if (b.status !== undefined) u.status = b.status;
+
+    if (b.endereco !== undefined) {
+      const endereco = normalizeText(b.endereco);
+      if (!endereco) return res.status(400).json({ success: false, error: "Endereço é obrigatório" });
+      u.endereco = endereco;
+    }
+
+    if (b.bairro !== undefined) u.bairro = normalizeOptionalText(b.bairro);
+
+    if (b.cidade !== undefined) {
+      const cidade = normalizeText(b.cidade);
+      if (!cidade) return res.status(400).json({ success: false, error: "Cidade é obrigatória" });
+      u.cidade = cidade;
+    }
+
+    if (b.estado !== undefined) {
+      const estado = normalizeText(b.estado).toUpperCase();
+      if (!estado || estado.length !== 2) return res.status(400).json({ success: false, error: "Estado deve ter 2 letras" });
+      u.estado = estado;
+    }
+
+    if (b.cep !== undefined) {
+      const cep = normalizeCep(b.cep);
+      if (normalizeText(b.cep) && (!cep || !/^\d{5}-\d{3}$/.test(cep))) {
+        return res.status(400).json({ success: false, error: "CEP inválido" });
+      }
+      u.cep = cep;
+    }
+
+    const numericFields = [
+      ["quartos", "Quartos", true],
+      ["suites", "Suítes", true],
+      ["banheiros", "Banheiros", true],
+      ["vagas", "Vagas", true],
+      ["pavimentos", "Pavimentos", true],
+      ["andar", "Andar", true],
+      ["valor_venda", "Valor de venda", false],
+      ["valor_locacao", "Valor de locação", false],
+      ["valor_condominio", "Valor de condomínio", false],
+      ["valor_iptu", "Valor de IPTU", false],
+      ["area_privativa", "Área privativa", false],
+      ["area_total", "Área total", false],
+    ] as const;
+
+    for (const [field, label, integer] of numericFields) {
+      if (b[field] === undefined) continue;
+      const result = parseNullableNumber(b[field], label, integer);
+      if (result.error) return res.status(400).json({ success: false, error: result.error });
+      u[field] = result.value;
+    }
+
+    const categoriaFinal = b.categoria !== undefined ? b.categoria : existente.categoria;
+    if (categoriaFinal === "terceiros") {
+      if (b.construtora_parceira !== undefined) u.construtora_parceira = normalizeOptionalText(b.construtora_parceira);
+      if (b.contato_parceiro !== undefined) u.contato_parceiro = normalizeOptionalText(b.contato_parceiro);
+    } else {
+      u.construtora_parceira = null;
+      u.contato_parceiro = null;
+    }
+
     if (imagemCapa !== undefined) u.imagem_capa = imagemCapa;
-    if (b.tabela_precos_url !== undefined) u.tabela_precos_url = b.tabela_precos_url || null;
+    if (b.tabela_precos_url !== undefined) u.tabela_precos_url = normalizeOptionalText(b.tabela_precos_url);
     if (b.corretor_id !== undefined) u.corretor_id = b.corretor_id ? Number(b.corretor_id) : null;
     if (b.destaque !== undefined) u.destaque = Boolean(b.destaque);
     if (b.publicado !== undefined) u.publicado = Boolean(b.publicado);
 
     const [atualizado] = await db.update(imoveis).set(u).where(eq(imoveis.id, id)).returning();
+
+    if (!atualizado) {
+      return res.status(404).json({ success: false, error: "Imóvel não encontrado" });
+    }
 
     if (fotos !== undefined) {
       await persistGallery(id, atualizado.titulo, fotos);
