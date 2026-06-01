@@ -7,6 +7,7 @@ import {
   Plus, Pencil, Trash2, Eye, EyeOff, Star, StarOff,
   Search, X, Upload, Image as ImageIcon, Loader, FileText
 } from "lucide-react";
+import { isOpenablePdfUrl, openPdfResource } from "../../utils/pdf";
 
 const CATS = [
   { value: "lancamento", label: "Lancamento", cls: "text-[#c9a84c] bg-[#c9a84c]/10" },
@@ -227,8 +228,17 @@ function PdfInput({ value, onChange }: { value: string; onChange: (v: string) =>
       {value && (
         <div className="flex items-center gap-3 mb-3 p-3 bg-white/5 rounded border border-white/10">
           <FileText size={18} className="text-[#c9a84c] shrink-0" />
-          <a href={value} target="_blank" rel="noreferrer"
-            className="text-[#c9a84c] text-sm hover:underline flex-1 truncate">Ver PDF anexado</a>
+          <button
+            type="button"
+            onClick={() => {
+              if (!openPdfResource(value)) {
+                toast.error("Nao foi possivel abrir o PDF anexado.");
+              }
+            }}
+            className="text-[#c9a84c] text-sm hover:underline flex-1 truncate text-left"
+          >
+            Ver PDF anexado
+          </button>
           <button type="button" onClick={() => onChange("")}
             className="text-white/30 hover:text-red-400 shrink-0"><X size={14} /></button>
         </div>
@@ -245,7 +255,9 @@ function PdfInput({ value, onChange }: { value: string; onChange: (v: string) =>
         </button>
         <input ref={fileRef} type="file" accept="application/pdf" onChange={handleFile} className="hidden" />
       </div>
-      <p className="text-white/25 text-[10px] mt-1">Aceita PDF. Max 20MB.</p>
+      <p className={`text-[10px] mt-1 ${value && !isOpenablePdfUrl(value) ? "text-amber-300" : "text-white/25"}`}>
+        {value && !isOpenablePdfUrl(value) ? "Arquivo vinculado com formato inválido para abertura." : "Aceita PDF. Max 20MB."}
+      </p>
     </div>
   );
 }

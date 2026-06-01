@@ -21,6 +21,7 @@ import {
 import { imoveisAPI, leadsAPI, type Imovel } from "../services/api";
 import { PropertyImage } from "../components/PropertyImage";
 import { PropertyCarousel } from "../components/PropertyCarousel";
+import { openPdfResource } from "../utils/pdf";
 
 const PHONE = "5547997050616";
 
@@ -255,14 +256,17 @@ export function ImovelDetalhePage() {
                 <Mail size={16} /> contato@thomeempreendimentos.com.br
               </a>
               {data.tabela_precos_url && (
-                <a
-                  href={data.tabela_precos_url}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!openPdfResource(data.tabela_precos_url)) {
+                      toast.error("Nao foi possivel abrir a tabela de precos.");
+                    }
+                  }}
                   className="flex w-full items-center justify-center gap-2 rounded-full border border-[#c9a84c]/30 bg-[#c9a84c]/5 px-5 py-3 text-sm text-[#c9a84c] hover:bg-[#c9a84c]/10"
                 >
                   <FileText size={16} /> Ver tabela de preços
-                </a>
+                </button>
               )}
             </div>
           </div>
