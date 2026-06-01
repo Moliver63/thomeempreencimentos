@@ -41,6 +41,11 @@ type GalleryDraft = {
   capa: boolean;
 };
 
+const IMAGE_MAX_SIZE_MB = 10;
+const IMAGE_MAX_SIZE_BYTES = IMAGE_MAX_SIZE_MB * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ACCEPTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
+
 function normalizeGalleryDrafts(items: Array<Partial<GaleriaImagem> | GalleryDraft | null | undefined>): GalleryDraft[] {
   const cleaned = items
     .map((item, index) => {
@@ -66,6 +71,23 @@ function normalizeGalleryDrafts(items: Array<Partial<GaleriaImagem> | GalleryDra
   }));
 }
 
+function isAcceptedImageFile(file: File) {
+  const fileName = file.name.toLowerCase();
+  return ACCEPTED_IMAGE_TYPES.includes(file.type) || ACCEPTED_IMAGE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
+}
+
+function validateImageFile(file: File) {
+  if (!isAcceptedImageFile(file)) {
+    return `Formato inválido para ${file.name}. Use JPG, JPEG, PNG ou WEBP.`;
+  }
+
+  if (file.size > IMAGE_MAX_SIZE_BYTES) {
+    return `${file.name} excede ${IMAGE_MAX_SIZE_MB} MB.`;
+  }
+
+  return null;
+}
+
 function fileToDataUrl(file: File) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -78,18 +100,39 @@ function fileToDataUrl(file: File) {
 // â”€â”€â”€ IMAGE UPLOAD HELPER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Converte arquivo para base64 (para preview) ou usa URL externa
 function ImageInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  const [mode, setMode] = useState<"url"|"preview">(value ? "url" : "url");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      onChange(reader.result as string);
-      setMode("preview");
-    };
-    reader.readAsDataURL(file);
+
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      toast.error(validationError);
+      e.target.value = "";
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const imageData = await fileToDataUrl(file);
+
+      try {
+        const response = await uploadAPI.imagem(imageData, "thome-imoveis/capa");
+        onChange(response.data.url);
+        toast.success("Imagem principal enviada com sucesso.");
+      } catch {
+        onChange(imageData);
+        toast.error("Upload externo indisponível. A imagem foi mantida em base64 neste cadastro.");
+      }
+    } catch {
+      toast.error("Não foi possível processar a imagem selecionada.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
   };
 
   return (
@@ -134,19 +177,20 @@ function ImageInput({ label, value, onChange }: { label: string; value: string; 
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="flex items-center gap-1.5 px-3 py-2.5 bg-white/5 border border-white/10 text-white/60 hover:text-[#c9a84c] hover:border-[#c9a84c]/40 text-xs rounded transition-colors"
+          disabled={uploading}
+          className="flex items-center gap-1.5 px-3 py-2.5 bg-white/5 border border-white/10 text-white/60 hover:text-[#c9a84c] hover:border-[#c9a84c]/40 text-xs rounded transition-colors disabled:opacity-60"
         >
-          <Upload size={13} /> Upload
+          {uploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />} {uploading ? "Enviando..." : "Upload"}
         </button>
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
           onChange={handleFile}
           className="hidden"
         />
       </div>
-      <p className="text-white/25 text-[10px] mt-1">Cole uma URL ou faÃ§a upload de um arquivo local</p>
+      <p className="text-white/25 text-[10px] mt-1">Cole uma URL ou faça upload de JPG, JPEG, PNG ou WEBP com até 10 MB.</p>
     </div>
   );
 }
@@ -174,6 +218,16 @@ function GaleriaInput({ fotos, onChange }: { fotos: GalleryDraft[]; onChange: (v
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
+    const invalidFiles = files
+      .map((file) => validateImageFile(file))
+      .filter((error): error is string => Boolean(error));
+
+    if (invalidFiles.length > 0) {
+      invalidFiles.forEach((error) => toast.error(error));
+      e.target.value = "";
+      return;
+    }
+
     setUploading(true);
 
     try {
@@ -188,13 +242,18 @@ function GaleriaInput({ fotos, onChange }: { fotos: GalleryDraft[]; onChange: (v
           urls = resultados.map((item, index) => (item.success && item.url ? item.url : base64Images[index]));
         }
 
-        if (resultados.some((item) => item.success && item.url)) {
-          toast.success(`${files.length} foto(s) enviada(s) para a galeria.`);
-        } else {
-          toast.error("Upload externo indisponivel. As fotos foram mantidas em base64 neste cadastro.");
+        const sucessos = resultados.filter((item) => item.success && item.url).length;
+        const falhas = resultados.length - sucessos;
+
+        if (sucessos > 0) {
+          toast.success(`${sucessos} foto(s) enviada(s) para a galeria.`);
+        }
+
+        if (falhas > 0) {
+          toast.error(`${falhas} foto(s) não puderam ser enviadas para o armazenamento externo e foram mantidas neste cadastro.`);
         }
       } catch {
-        toast.error("Upload externo indisponivel. As fotos foram mantidas em base64 neste cadastro.");
+        toast.error("Upload externo indisponível. As fotos foram mantidas em base64 neste cadastro.");
       }
 
       syncFotos([
@@ -277,7 +336,7 @@ function GaleriaInput({ fotos, onChange }: { fotos: GalleryDraft[]; onChange: (v
             {uploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />} {uploading ? "Enviando..." : "Upload"}
           </button>
         </div>
-        <input ref={fileRef} type="file" accept="image/*" multiple onChange={addFile} className="hidden" />
+        <input ref={fileRef} type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple onChange={addFile} className="hidden" />
       </div>
 
       {fotos.length === 0 ? (
@@ -374,7 +433,7 @@ function GaleriaInput({ fotos, onChange }: { fotos: GalleryDraft[]; onChange: (v
         </div>
       )}
 
-      <p className="text-white/25 text-[10px] mt-3">A imagem de capa principal continua opcional. Se ela ficar vazia, o sistema usara a foto marcada como capa da galeria na pagina publica.</p>
+      <p className="text-white/25 text-[10px] mt-3">A imagem de capa principal continua opcional. Se ela ficar vazia, o sistema usará a foto marcada como capa da galeria na página pública. A ordem definida aqui também é a ordem exibida na galeria pública.</p>
     </div>
   );
 }
