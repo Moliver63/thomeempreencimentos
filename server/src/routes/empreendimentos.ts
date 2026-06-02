@@ -40,7 +40,7 @@ async function attachGalleryToOne(item: ImovelRow | undefined) {
   return enriched;
 }
 
-const DEFAULT_CITY = "Balneário Camboriú";
+const DEFAULT_CITY = "BalneÃ¡rio CamboriÃº";
 const DEFAULT_STATE = "SC";
 
 function normalizeText(value: unknown) {
@@ -65,15 +65,15 @@ function parseNullableNumber(value: unknown, label: string, integer = false): { 
 
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
-    return { value: null, error: `${label} inválido.` };
+    return { value: null, error: `${label} invÃ¡lido.` };
   }
 
   if (parsed < 0) {
-    return { value: null, error: `${label} não pode ser negativo.` };
+    return { value: null, error: `${label} nÃ£o pode ser negativo.` };
   }
 
   if (integer && !Number.isInteger(parsed)) {
-    return { value: null, error: `${label} deve ser um número inteiro.` };
+    return { value: null, error: `${label} deve ser um nÃºmero inteiro.` };
   }
 
   return { value: parsed };
@@ -142,7 +142,7 @@ empreendimentosRouter.get("/", async (_req: Request, res: Response) => {
     const data = await attachGallery(lista);
     res.json({ success: true, data });
   } catch {
-    res.status(500).json({ success: false, error: "Erro ao buscar imóveis" });
+    res.status(500).json({ success: false, error: "Erro ao buscar imÃ³veis" });
   }
 });
 
@@ -167,7 +167,7 @@ empreendimentosRouter.get("/admin/todos", requireAdmin, async (_req: Request, re
     const data = await attachGallery(lista);
     res.json({ success: true, data });
   } catch {
-    res.status(500).json({ success: false, error: "Erro ao buscar imóveis" });
+    res.status(500).json({ success: false, error: "Erro ao buscar imÃ³veis" });
   }
 });
 
@@ -182,10 +182,24 @@ empreendimentosRouter.get("/corretor/portfolio", requireAuth, async (_req: Reque
     const data = await attachGallery(lista);
     res.json({ success: true, data });
   } catch {
-    res.status(500).json({ success: false, error: "Erro ao buscar portfólio" });
+    res.status(500).json({ success: false, error: "Erro ao buscar portfÃ³lio" });
   }
 });
 
+
+empreendimentosRouter.get("/admin/:id", requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const [item] = await db
+      .select()
+      .from(imoveis)
+      .where(eq(imoveis.id, parseInt(req.params.id)));
+    if (!item) return res.status(404).json({ success: false, error: "Nao encontrado" });
+    const data = await attachGalleryToOne(item);
+    res.json({ success: true, data });
+  } catch {
+    res.status(500).json({ success: false, error: "Erro interno" });
+  }
+});
 empreendimentosRouter.get("/:slug", async (req: Request, res: Response) => {
   try {
     const [item] = await db
@@ -194,7 +208,7 @@ empreendimentosRouter.get("/:slug", async (req: Request, res: Response) => {
       .where(and(eq(imoveis.slug, req.params.slug), eq(imoveis.publicado, true)));
 
     if (!item) {
-      return res.status(404).json({ success: false, error: "Não encontrado" });
+      return res.status(404).json({ success: false, error: "NÃ£o encontrado" });
     }
 
     const data = await attachGalleryToOne(item);
@@ -227,27 +241,27 @@ empreendimentosRouter.post("/", requireAdmin, async (req: Request, res: Response
     const estado = (normalizeText(b.estado) || DEFAULT_STATE).toUpperCase();
     const cep = normalizeCep(b.cep);
 
-    if (!titulo) return res.status(400).json({ success: false, error: "Título é obrigatório" });
-    if (titulo.length < 4) return res.status(400).json({ success: false, error: "Título deve ter pelo menos 4 caracteres" });
-    if (!descricao) return res.status(400).json({ success: false, error: "Descrição é obrigatória" });
-    if (descricao.length < 20) return res.status(400).json({ success: false, error: "Descrição deve ter pelo menos 20 caracteres" });
-    if (!b.categoria || !b.tipo) return res.status(400).json({ success: false, error: "Categoria e tipo são obrigatórios" });
-    if (!endereco) return res.status(400).json({ success: false, error: "Endereço é obrigatório" });
-    if (!cidade) return res.status(400).json({ success: false, error: "Cidade é obrigatória" });
+    if (!titulo) return res.status(400).json({ success: false, error: "TÃ­tulo Ã© obrigatÃ³rio" });
+    if (titulo.length < 4) return res.status(400).json({ success: false, error: "TÃ­tulo deve ter pelo menos 4 caracteres" });
+    if (!descricao) return res.status(400).json({ success: false, error: "DescriÃ§Ã£o Ã© obrigatÃ³ria" });
+    if (descricao.length < 20) return res.status(400).json({ success: false, error: "DescriÃ§Ã£o deve ter pelo menos 20 caracteres" });
+    if (!b.categoria || !b.tipo) return res.status(400).json({ success: false, error: "Categoria e tipo sÃ£o obrigatÃ³rios" });
+    if (!endereco) return res.status(400).json({ success: false, error: "EndereÃ§o Ã© obrigatÃ³rio" });
+    if (!cidade) return res.status(400).json({ success: false, error: "Cidade Ã© obrigatÃ³ria" });
     if (!estado || estado.length !== 2) return res.status(400).json({ success: false, error: "Estado deve ter 2 letras" });
-    if (cep && !/^\d{5}-\d{3}$/.test(cep)) return res.status(400).json({ success: false, error: "CEP inválido" });
+    if (cep && !/^\d{5}-\d{3}$/.test(cep)) return res.status(400).json({ success: false, error: "CEP invÃ¡lido" });
 
-    const areaTotal = parseNullableNumber(b.area_total, "Área total");
-    const areaPrivativa = parseNullableNumber(b.area_privativa, "Área privativa");
+    const areaTotal = parseNullableNumber(b.area_total, "Ãrea total");
+    const areaPrivativa = parseNullableNumber(b.area_privativa, "Ãrea privativa");
     const quartos = parseNullableNumber(b.quartos, "Quartos", true);
-    const suites = parseNullableNumber(b.suites, "Suítes", true);
+    const suites = parseNullableNumber(b.suites, "SuÃ­tes", true);
     const banheiros = parseNullableNumber(b.banheiros, "Banheiros", true);
     const vagas = parseNullableNumber(b.vagas, "Vagas", true);
     const pavimentos = parseNullableNumber(b.pavimentos, "Pavimentos", true);
     const andar = parseNullableNumber(b.andar, "Andar", true);
     const valorVenda = parseNullableNumber(b.valor_venda, "Valor de venda");
-    const valorLocacao = parseNullableNumber(b.valor_locacao, "Valor de locação");
-    const valorCondominio = parseNullableNumber(b.valor_condominio, "Valor de condomínio");
+    const valorLocacao = parseNullableNumber(b.valor_locacao, "Valor de locaÃ§Ã£o");
+    const valorCondominio = parseNullableNumber(b.valor_condominio, "Valor de condomÃ­nio");
     const valorIptu = parseNullableNumber(b.valor_iptu, "Valor de IPTU");
 
     const numericResults = [areaTotal, areaPrivativa, quartos, suites, banheiros, vagas, pavimentos, andar, valorVenda, valorLocacao, valorCondominio, valorIptu];
@@ -302,7 +316,7 @@ empreendimentosRouter.post("/", requireAdmin, async (req: Request, res: Response
     res.status(201).json({ success: true, data });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, error: "Erro ao criar imóvel" });
+    res.status(500).json({ success: false, error: "Erro ao criar imÃ³vel" });
   }
 });
 
@@ -310,14 +324,14 @@ empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Respon
   try {
     const id = parseInt(req.params.id);
     if (Number.isNaN(id)) {
-      return res.status(400).json({ success: false, error: "ID inválido" });
+      return res.status(400).json({ success: false, error: "ID invÃ¡lido" });
     }
 
     const b = req.body;
     const [existente] = await db.select().from(imoveis).where(eq(imoveis.id, id));
 
     if (!existente) {
-      return res.status(404).json({ success: false, error: "Imóvel não encontrado" });
+      return res.status(404).json({ success: false, error: "ImÃ³vel nÃ£o encontrado" });
     }
 
     const u: any = { updated_at: new Date() };
@@ -328,16 +342,16 @@ empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Respon
 
     if (b.titulo !== undefined) {
       const titulo = normalizeText(b.titulo);
-      if (!titulo) return res.status(400).json({ success: false, error: "Título é obrigatório" });
-      if (titulo.length < 4) return res.status(400).json({ success: false, error: "Título deve ter pelo menos 4 caracteres" });
+      if (!titulo) return res.status(400).json({ success: false, error: "TÃ­tulo Ã© obrigatÃ³rio" });
+      if (titulo.length < 4) return res.status(400).json({ success: false, error: "TÃ­tulo deve ter pelo menos 4 caracteres" });
       u.titulo = titulo;
       if (titulo !== existente.titulo) u.slug = toSlug(titulo);
     }
 
     if (b.descricao !== undefined) {
       const descricao = normalizeText(b.descricao);
-      if (!descricao) return res.status(400).json({ success: false, error: "Descrição é obrigatória" });
-      if (descricao.length < 20) return res.status(400).json({ success: false, error: "Descrição deve ter pelo menos 20 caracteres" });
+      if (!descricao) return res.status(400).json({ success: false, error: "DescriÃ§Ã£o Ã© obrigatÃ³ria" });
+      if (descricao.length < 20) return res.status(400).json({ success: false, error: "DescriÃ§Ã£o deve ter pelo menos 20 caracteres" });
       u.descricao = descricao;
     }
 
@@ -347,7 +361,7 @@ empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Respon
 
     if (b.endereco !== undefined) {
       const endereco = normalizeText(b.endereco);
-      if (!endereco) return res.status(400).json({ success: false, error: "Endereço é obrigatório" });
+      if (!endereco) return res.status(400).json({ success: false, error: "EndereÃ§o Ã© obrigatÃ³rio" });
       u.endereco = endereco;
     }
 
@@ -355,7 +369,7 @@ empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Respon
 
     if (b.cidade !== undefined) {
       const cidade = normalizeText(b.cidade);
-      if (!cidade) return res.status(400).json({ success: false, error: "Cidade é obrigatória" });
+      if (!cidade) return res.status(400).json({ success: false, error: "Cidade Ã© obrigatÃ³ria" });
       u.cidade = cidade;
     }
 
@@ -368,24 +382,24 @@ empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Respon
     if (b.cep !== undefined) {
       const cep = normalizeCep(b.cep);
       if (normalizeText(b.cep) && (!cep || !/^\d{5}-\d{3}$/.test(cep))) {
-        return res.status(400).json({ success: false, error: "CEP inválido" });
+        return res.status(400).json({ success: false, error: "CEP invÃ¡lido" });
       }
       u.cep = cep;
     }
 
     const numericFields = [
       ["quartos", "Quartos", true],
-      ["suites", "Suítes", true],
+      ["suites", "SuÃ­tes", true],
       ["banheiros", "Banheiros", true],
       ["vagas", "Vagas", true],
       ["pavimentos", "Pavimentos", true],
       ["andar", "Andar", true],
       ["valor_venda", "Valor de venda", false],
-      ["valor_locacao", "Valor de locação", false],
-      ["valor_condominio", "Valor de condomínio", false],
+      ["valor_locacao", "Valor de locaÃ§Ã£o", false],
+      ["valor_condominio", "Valor de condomÃ­nio", false],
       ["valor_iptu", "Valor de IPTU", false],
-      ["area_privativa", "Área privativa", false],
-      ["area_total", "Área total", false],
+      ["area_privativa", "Ãrea privativa", false],
+      ["area_total", "Ãrea total", false],
     ] as const;
 
     for (const [field, label, integer] of numericFields) {
@@ -413,7 +427,7 @@ empreendimentosRouter.put("/:id", requireAdmin, async (req: Request, res: Respon
     const [atualizado] = await db.update(imoveis).set(u).where(eq(imoveis.id, id)).returning();
 
     if (!atualizado) {
-      return res.status(404).json({ success: false, error: "Imóvel não encontrado" });
+      return res.status(404).json({ success: false, error: "ImÃ³vel nÃ£o encontrado" });
     }
 
     if (fotos !== undefined) {
@@ -443,12 +457,12 @@ empreendimentosRouter.patch("/:id/toggle", requireAdmin, async (req: Request, re
     const campo = req.body.campo as "publicado" | "destaque";
 
     if (!["publicado", "destaque"].includes(campo)) {
-      return res.status(400).json({ success: false, error: "Campo inválido" });
+      return res.status(400).json({ success: false, error: "Campo invÃ¡lido" });
     }
 
     const [atual] = await db.select().from(imoveis).where(eq(imoveis.id, id));
     if (!atual) {
-      return res.status(404).json({ success: false, error: "Não encontrado" });
+      return res.status(404).json({ success: false, error: "NÃ£o encontrado" });
     }
 
     const [atualizado] = await db

@@ -1,5 +1,5 @@
 // client/src/pages/admin/ImoveisAdminPage.tsx
-// Versao final auditada â€” todos os bugs corrigidos
+// Versao final auditada Ã¢â‚¬â€ todos os bugs corrigidos
 import { useState, useRef, useCallback, memo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { imoveisAPI, galeriaAPI, type Imovel } from "../../services/api";
@@ -11,7 +11,7 @@ import {
   FileText, CheckCircle, AlertCircle, GripVertical,
 } from "lucide-react";
 
-// â”€â”€â”€ CONSTANTES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ CONSTANTES Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const CATS = [
   { value: "lancamento", label: "Lancamento",  cls: "text-[#c9a84c] bg-[#c9a84c]/10 border-[#c9a84c]/30" },
   { value: "pronto",     label: "Pronto",      cls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" },
@@ -33,7 +33,7 @@ const STATUS = [
   { value: "locado",     label: "Locado"     },
 ];
 
-// â”€â”€â”€ TIPOS DO FORMULARIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ TIPOS DO FORMULARIO Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 interface FormData {
   titulo: string; descricao: string; categoria: string; tipo: string;
   status: string; endereco: string; bairro: string; cidade: string;
@@ -88,12 +88,12 @@ function makeEmpty(imovel?: Imovel): FormData {
   };
 }
 
-// â”€â”€â”€ ESTILOS BASE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ ESTILOS BASE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const iCls = "w-full bg-white/5 border border-white/10 text-white px-3 py-2.5 text-sm placeholder-white/20 focus:outline-none focus:border-[#c9a84c]/60 focus:bg-white/8 rounded transition-colors";
 const lCls = "block text-white/45 text-[10px] tracking-[0.12em] uppercase mb-1.5 font-medium";
 const sCls = "bg-[#161616] border border-white/10 text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#c9a84c]/60 rounded transition-colors w-full";
 
-// â”€â”€â”€ COMPONENTE: FOTO CAPA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ COMPONENTE: FOTO CAPA Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 interface CapaProps { value: string; onChange: (v: string) => void; }
 const CapaInput = memo(({ value, onChange }: CapaProps) => {
   const [loading, setLoading] = useState(false);
@@ -138,7 +138,7 @@ const CapaInput = memo(({ value, onChange }: CapaProps) => {
         </div>
       ) : value && !isUrl ? (
         <div className="mb-2 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded flex items-center gap-2 text-yellow-400 text-xs">
-          <AlertCircle size={12} /> URL invalida â€” use https:// ou faca upload
+          <AlertCircle size={12} /> URL invalida Ã¢â‚¬â€ use https:// ou faca upload
           <button type="button" onClick={() => onChange("")} className="ml-auto"><X size={12} /></button>
         </div>
       ) : null}
@@ -169,7 +169,7 @@ const CapaInput = memo(({ value, onChange }: CapaProps) => {
   );
 });
 
-// â”€â”€â”€ COMPONENTE: GALERIA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ COMPONENTE: GALERIA Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 interface GaleriaProps { fotos: string[]; setFotos: React.Dispatch<React.SetStateAction<string[]>>; }
 const GaleriaInput = memo(({ fotos, setFotos }: GaleriaProps) => {
   const [loading,  setLoading]  = useState(false);
@@ -209,7 +209,7 @@ const GaleriaInput = memo(({ fotos, setFotos }: GaleriaProps) => {
         ok++;
         setProgress(p => ({ ...p, done: p.done + 1 }));
       } catch (err: any) {
-        toast.error(`Erro: ${file.name} â€” ${err.message}`);
+        toast.error(`Erro: ${file.name} Ã¢â‚¬â€ ${err.message}`);
         setProgress(p => ({ ...p, done: p.done + 1 }));
       }
     }
@@ -320,7 +320,7 @@ const GaleriaInput = memo(({ fotos, setFotos }: GaleriaProps) => {
   );
 });
 
-// â”€â”€â”€ COMPONENTE: PDF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ COMPONENTE: PDF Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 interface PdfProps { value: string; onChange: (v: string) => void; }
 const PdfInput = memo(({ value, onChange }: PdfProps) => {
   const [loading, setLoading] = useState(false);
@@ -410,7 +410,7 @@ const PdfInput = memo(({ value, onChange }: PdfProps) => {
   );
 });
 
-// â”€â”€â”€ MODAL PRINCIPAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ MODAL PRINCIPAL Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 interface ModalProps { imovel?: Imovel; onClose: () => void; }
 
 function ImovelModal({ imovel, onClose }: ModalProps) {
@@ -420,7 +420,17 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
   const [fotos, setFotos] = useState<string[]>([]);
   const [aba,   setAba  ] = useState<"dados"|"fotos"|"valores"|"publicacao">("dados");
 
-  // handleChange estavel â€” nao recria inputs a cada render
+  // Carrega galeria existente ao editar
+  useEffect(() => {
+    if (isEdit && imovel?.id) {
+      galeriaAPI.listar(imovel.id).then(r => {
+        const urls = (r.data?.data || []).map((f: any) => f.url).filter(Boolean);
+        if (urls.length > 0) setFotos(urls);
+      }).catch(() => {});
+    }
+  }, [isEdit, imovel?.id]);
+
+  // handleChange estavel Ã¢â‚¬â€ nao recria inputs a cada render
   const handleChange = useCallback((
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -540,7 +550,7 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
         <form onSubmit={handleSubmit}>
           <div className="p-6">
 
-            {/* â”€â”€ ABA DADOS â”€â”€ */}
+            {/* Ã¢â€â‚¬Ã¢â€â‚¬ ABA DADOS Ã¢â€â‚¬Ã¢â€â‚¬ */}
             {aba === "dados" && (
               <div className="space-y-4">
                 <div>
@@ -553,7 +563,7 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
                     autoComplete="off"
                     value={form.titulo}
                     onChange={handleChange}
-                    placeholder="Ex: Residencial Betina â€” Centro Camboriu"
+                    placeholder="Ex: Residencial Betina Ã¢â‚¬â€ Centro Camboriu"
                     className={iCls + (form.titulo ? "" : " border-yellow-500/30")}
                   />
                 </div>
@@ -605,7 +615,7 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
                 <div>
                   <label className={lCls} htmlFor="f-endereco">Endereco *</label>
                   <input id="f-endereco" name="endereco" type="text" required value={form.endereco}
-                    onChange={handleChange} placeholder="Ex: Rua 3122, 75 â€” Balneario Camboriu, SC" className={iCls} />
+                    onChange={handleChange} placeholder="Ex: Rua 3122, 75 Ã¢â‚¬â€ Balneario Camboriu, SC" className={iCls} />
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
@@ -637,12 +647,12 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
                     <input name="vagas" type="number" min="0" max="20" value={form.vagas} onChange={handleChange} placeholder="2" className={iCls} /></div>
                   <div><label className={lCls}>Pavimentos</label>
                     <input name="pavimentos" type="number" min="0" max="100" value={form.pavimentos} onChange={handleChange} placeholder="10" className={iCls} /></div>
-                  <div><label className={lCls}>Area Priv. mÂ²</label>
+                  <div><label className={lCls}>Area Priv. mÃ‚Â²</label>
                     <input name="area_privativa" type="number" min="0" step="0.01" value={form.area_privativa} onChange={handleChange} placeholder="85" className={iCls} /></div>
                 </div>
 
                 <div>
-                  <label className={lCls}>Area Total mÂ²</label>
+                  <label className={lCls}>Area Total mÃ‚Â²</label>
                   <input name="area_total" type="number" min="0" step="0.01" value={form.area_total}
                     onChange={handleChange} placeholder="120" className={iCls} />
                 </div>
@@ -664,7 +674,7 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
               </div>
             )}
 
-            {/* â”€â”€ ABA FOTOS & PDF â”€â”€ */}
+            {/* Ã¢â€â‚¬Ã¢â€â‚¬ ABA FOTOS & PDF Ã¢â€â‚¬Ã¢â€â‚¬ */}
             {aba === "fotos" && (
               <div className="space-y-6">
                 <CapaInput
@@ -685,17 +695,17 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
                 <div className="p-4 bg-[#c9a84c]/5 border border-[#c9a84c]/15 rounded-lg">
                   <p className="text-[#c9a84c] text-[11px] font-semibold mb-2">Como o upload funciona</p>
                   <ul className="text-white/35 text-[11px] space-y-1 leading-relaxed">
-                    <li>â€¢ Fotos e PDF vao <strong className="text-white/50">direto</strong> para o Cloudinary â€” nao passa pelo servidor</li>
-                    <li>â€¢ Apenas URLs validas (https://...) sao salvas â€” nunca base64</li>
-                    <li>â€¢ Se der erro, o campo fica vazio â€” tente novamente</li>
-                    <li>â€¢ Selecione multiplos arquivos de uma vez para upload em lote</li>
-                    <li>â€¢ A primeira foto da galeria se torna a capa se nao houver capa definida</li>
+                    <li>Ã¢â‚¬Â¢ Fotos e PDF vao <strong className="text-white/50">direto</strong> para o Cloudinary Ã¢â‚¬â€ nao passa pelo servidor</li>
+                    <li>Ã¢â‚¬Â¢ Apenas URLs validas (https://...) sao salvas Ã¢â‚¬â€ nunca base64</li>
+                    <li>Ã¢â‚¬Â¢ Se der erro, o campo fica vazio Ã¢â‚¬â€ tente novamente</li>
+                    <li>Ã¢â‚¬Â¢ Selecione multiplos arquivos de uma vez para upload em lote</li>
+                    <li>Ã¢â‚¬Â¢ A primeira foto da galeria se torna a capa se nao houver capa definida</li>
                   </ul>
                 </div>
               </div>
             )}
 
-            {/* â”€â”€ ABA VALORES â”€â”€ */}
+            {/* Ã¢â€â‚¬Ã¢â€â‚¬ ABA VALORES Ã¢â€â‚¬Ã¢â€â‚¬ */}
             {aba === "valores" && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -739,7 +749,7 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
               </div>
             )}
 
-            {/* â”€â”€ ABA PUBLICACAO â”€â”€ */}
+            {/* Ã¢â€â‚¬Ã¢â€â‚¬ ABA PUBLICACAO Ã¢â€â‚¬Ã¢â€â‚¬ */}
             {aba === "publicacao" && (
               <div className="space-y-4">
                 {[
@@ -768,9 +778,9 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
                   <p className="text-white/30 text-[10px] tracking-widest uppercase mb-3">Resumo do imovel</p>
                   <div className="space-y-2">
                     {[
-                      ["Titulo",     form.titulo || "â€”",    !form.titulo],
+                      ["Titulo",     form.titulo || "Ã¢â‚¬â€",    !form.titulo],
                       ["Categoria",  form.categoria,         false],
-                      ["Cidade",     form.cidade || "â€”",     !form.cidade],
+                      ["Cidade",     form.cidade || "Ã¢â‚¬â€",     !form.cidade],
                       ["Foto capa",  form.imagem_capa?.startsWith("http") ? "Configurada" : fotos.length > 0 ? `${fotos.length} na galeria` : "Sem foto", !form.imagem_capa && fotos.length === 0],
                       ["Galeria",    `${fotos.length} foto(s)`, false],
                       ["PDF",        form.pdf_url?.startsWith("http") ? "Anexado" : "Nenhum", false],
@@ -815,7 +825,7 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
                     if (next) setAba(next);
                   }}
                   className="px-5 py-2.5 bg-white/8 text-white text-sm rounded-lg hover:bg-white/15 transition-all">
-                  Proximo â†’
+                  Proximo Ã¢â€ â€™
                 </button>
               ) : (
                 <button type="submit" disabled={mut.isPending}
@@ -832,7 +842,7 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
   );
 }
 
-// â”€â”€â”€ PÃGINA PRINCIPAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ PÃƒÂGINA PRINCIPAL Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 export function ImoveisAdminPage() {
   const qc = useQueryClient();
   const [modal,    setModal]    = useState<"new"|"edit"|null>(null);
@@ -945,7 +955,7 @@ export function ImoveisAdminPage() {
                     ? "R$ " + Number(im.valor_venda).toLocaleString("pt-BR")
                     : im.valor_locacao
                     ? "R$ " + Number(im.valor_locacao).toLocaleString("pt-BR") + "/mes"
-                    : "â€”";
+                    : "Ã¢â‚¬â€";
                   return (
                     <tr key={im.id} className="hover:bg-white/2 transition-colors group">
                       <td className="px-4 py-3">
@@ -1019,7 +1029,7 @@ export function ImoveisAdminPage() {
         )}
       </div>
 
-      {/* RodapÃ© da tabela */}
+      {/* RodapÃƒÂ© da tabela */}
       {filtered.length > 0 && (
         <p className="text-white/20 text-xs text-right">
           Mostrando {filtered.length} de {(data||[]).length} imovel(is)
