@@ -138,3 +138,8 @@ export const authAPI = {
   registro: (data: any) => api.post("/auth/registro", data),
   me: () => api.get("/auth/me"),
 };
+
+export const galeriaAPI = {
+  listar:  (id: number) => api.get('/galeria/' + id),
+  salvar:  (id: number, fotos: string[]) => api.post('/galeria/' + id, { fotos }),
+};

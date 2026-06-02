@@ -41,6 +41,7 @@ const { authRouter }                  = require("./routes/auth");
 const { empreendimentosRouter }       = require("./routes/empreendimentos");
 const { leadsRouter, contatosRouter } = require("./routes/leads");
 const { usuariosRouter }              = require("./routes/usuarios");
+const { galeriaRouter } = require("./routes/galeria");
 const { uploadRouter }                = require("./routes/upload");
 
 app.use("/api/auth",            formLimiter, authRouter);
@@ -49,6 +50,7 @@ app.use("/api/imoveis",         empreendimentosRouter);
 app.use("/api/leads",           formLimiter, leadsRouter);
 app.use("/api/contatos",        formLimiter, contatosRouter);
 app.use("/api/usuarios",        usuariosRouter);
+app.use("/api/galeria", galeriaRouter);
 app.use("/api/upload",          uploadRouter);
 
 app.use((_req: Request, res: Response) => {
