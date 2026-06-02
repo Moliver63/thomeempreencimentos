@@ -1,8 +1,8 @@
 // client/src/services/cloudinaryUpload.ts
-// Upload DIRETO para Cloudinary â€” sem passar pelo servidor, sem assinatura
+// Upload DIRETO para Cloudinary Ã¢â‚¬â€ sem passar pelo servidor, sem assinatura
 
 const CLOUD  = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dzty82u60";
-const PRESET = (import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "thome_unsigned";
+const PRESET = (import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "thome_unsigned");
 
 async function doUpload(file: File, resourceType: "image" | "raw"): Promise<string> {
   const fd = new FormData();
