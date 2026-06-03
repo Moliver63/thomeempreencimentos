@@ -825,7 +825,7 @@ function ImovelModal({ imovel, onClose }: ModalProps) {
                     if (next) setAba(next);
                   }}
                   className="px-5 py-2.5 bg-white/8 text-white text-sm rounded-lg hover:bg-white/15 transition-all">
-                  Proximo ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢
+                  Proximo
                 </button>
               ) : (
                 <button type="submit" disabled={mut.isPending}
